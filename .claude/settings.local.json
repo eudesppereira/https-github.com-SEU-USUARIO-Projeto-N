@@ -19,7 +19,8 @@
       "Bash(grep -q \"^\\\\.env$\" .gitignore)",
       "Bash(echo \".env\")",
       "Bash(printf 'prisma/dev.db\\\\nprisma/dev.db-journal\\\\n')",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
