@@ -20,7 +20,8 @@
       "Bash(echo \".env\")",
       "Bash(printf 'prisma/dev.db\\\\nprisma/dev.db-journal\\\\n')",
       "Bash(npx vitest *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(echo \"tsc exit: $?\")"
     ]
   }
 }
