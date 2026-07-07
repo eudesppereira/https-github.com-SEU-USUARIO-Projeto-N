@@ -18,7 +18,8 @@
       "Bash(printf 'DATABASE_URL=\"file:./dev.db\"\\\\nANTHROPIC_API_KEY=\"\"\\\\nANTHROPIC_MODEL=\"claude-sonnet-5\"\\\\nADMIN_EMAIL=\"eudes@nutre.ai\"\\\\nADMIN_PASSWORD=\"nutre-admin-dev\"\\\\nSESSION_SECRET=\"dev-secret-trocar-em-producao-9f8a7b6c5d4e\"\\\\nAPP_URL=\"http://localhost:3000\"\\\\n')",
       "Bash(grep -q \"^\\\\.env$\" .gitignore)",
       "Bash(echo \".env\")",
-      "Bash(printf 'prisma/dev.db\\\\nprisma/dev.db-journal\\\\n')"
+      "Bash(printf 'prisma/dev.db\\\\nprisma/dev.db-journal\\\\n')",
+      "Bash(npx vitest *)"
     ]
   }
 }
