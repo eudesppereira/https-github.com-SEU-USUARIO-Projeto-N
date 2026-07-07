@@ -63,8 +63,11 @@ async function processarEvento(
 ): Promise<void> {
   switch (evento.tipo) {
     case "consentimento_lgpd":
+      await tratarConsentimento(evento.payload, cliente, "lgpd");
+      break;
+
     case "consentimento_fotos":
-      // implementado na etapa de LGPD (commit 7)
+      await tratarConsentimento(evento.payload, cliente, "fotos");
       break;
 
     case "anamnese_completa":
@@ -80,9 +83,45 @@ async function processarEvento(
       break;
 
     case "solicitacao_exclusao":
-      // implementado na etapa de LGPD (commit 7)
+      await tratarSolicitacaoExclusao(cliente);
       break;
   }
+}
+
+// Consentimentos LGPD (art. 11 — dado sensível: específico, destacado, com registro)
+async function tratarConsentimento(
+  payload: Record<string, unknown>,
+  cliente: Cliente,
+  tipo: "lgpd" | "fotos"
+): Promise<void> {
+  const aceitou = String(payload.resposta ?? "").toLowerCase().startsWith("s");
+  const agora = new Date();
+  await prisma.cliente.update({
+    where: { id: cliente.id },
+    data:
+      tipo === "lgpd"
+        ? { consentimentoLgpd: aceitou, consentimentoLgpdEm: agora }
+        : { consentimentoFotos: aceitou, consentimentoFotosEm: agora },
+  });
+  await auditar(tipo === "lgpd" ? "consentimento_lgpd" : "consentimento_fotos", {
+    clienteId: cliente.id,
+    resposta: aceitou ? "sim" : "nao",
+    em: agora.toISOString(),
+  });
+}
+
+// Pedido de exclusão vindo do chat: registra, pausa o uso e aciona o nutricionista
+// (a exclusão efetiva é feita pelo admin no painel).
+async function tratarSolicitacaoExclusao(cliente: Cliente): Promise<void> {
+  await prisma.cliente.update({
+    where: { id: cliente.id },
+    data: { status: "pausado" },
+  });
+  await auditar("exclusao_solicitada", {
+    clienteId: cliente.id,
+    email: cliente.email,
+    em: new Date().toISOString(),
+  });
 }
 
 async function tratarAnamneseCompleta(

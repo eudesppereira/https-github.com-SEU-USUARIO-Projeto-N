@@ -64,6 +64,16 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
     setTimeout(() => setCopiado(null), 1500);
   }
 
+  async function excluirDados(l: Linha) {
+    const confirmacao = prompt(
+      `EXCLUSÃO DEFINITIVA (LGPD): todos os dados de ${l.nome} — caso, dietas, check-ins e conversas — serão apagados. Digite o e-mail do cliente para confirmar:`
+    );
+    if (confirmacao?.trim().toLowerCase() !== l.email.toLowerCase()) return;
+    const r = await fetch(`/api/admin/clientes/${l.id}`, { method: "DELETE" });
+    if (r.ok) router.refresh();
+    else alert("Erro ao excluir.");
+  }
+
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="flex items-center justify-between">
@@ -189,12 +199,21 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => copiar(l.link, l.id)}
-                    className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:border-emerald-600 hover:text-emerald-700"
-                  >
-                    {copiado === l.id ? "Copiado!" : "Copiar link"}
-                  </button>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => copiar(l.link, l.id)}
+                      className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:border-emerald-600 hover:text-emerald-700"
+                    >
+                      {copiado === l.id ? "Copiado!" : "Copiar link"}
+                    </button>
+                    <button
+                      onClick={() => excluirDados(l)}
+                      title="Excluir todos os dados (LGPD)"
+                      className="rounded border border-red-200 px-2 py-1 text-xs text-red-500 hover:border-red-500 hover:bg-red-50"
+                    >
+                      Excluir dados
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
