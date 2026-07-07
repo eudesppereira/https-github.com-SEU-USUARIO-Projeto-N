@@ -126,7 +126,7 @@ export async function POST(
   const { textoLimpo, eventos } = extrairEventos(respostaBruta);
 
   // eventos primeiro: se a anamnese fechar, a dieta é gerada antes de o cliente ver a resposta
-  await processarEventos(eventos, cliente);
+  await processarEventos(eventos, cliente, textoLimpo);
 
   const salva = await prisma.mensagem.create({
     data: {

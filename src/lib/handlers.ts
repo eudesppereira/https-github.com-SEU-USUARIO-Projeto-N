@@ -2,25 +2,35 @@
 // Cada handler é idempotente na medida do possível; falha de um handler não
 // derruba a resposta ao cliente (loga e segue).
 
-import type { Cliente } from "@prisma/client";
+import type { Caso, Cliente } from "@prisma/client";
 import { prisma } from "./db";
 import { auditar } from "./audit";
 import type { EventoNutre } from "./eventos";
 import {
+  avaliarEvolucaoFisica,
+  calcularIndiceProgressao,
   calcularPerfilMetabolico,
   type Objetivo,
   type Sexo,
 } from "./calculos";
-import { flagsDeterministicas, unirFlags, lerMemoria, type MemoriaCaso } from "./caso";
+import {
+  DIAS_CICLO,
+  diasDesde,
+  flagsDeterministicas,
+  unirFlags,
+  lerMemoria,
+  type MemoriaCaso,
+} from "./caso";
 import { gerarDietaParaRevisao } from "./dieta";
 
 export async function processarEventos(
   eventos: EventoNutre[],
-  cliente: Cliente
+  cliente: Cliente,
+  textoResposta = ""
 ): Promise<void> {
   for (const evento of eventos) {
     try {
-      await processarEvento(evento, cliente);
+      await processarEvento(evento, cliente, textoResposta);
     } catch (e) {
       console.error(`[nutre] erro ao processar evento ${evento.tipo}:`, e);
     }
@@ -46,7 +56,11 @@ function normalizarObjetivo(bruto: unknown): Objetivo {
   return "manutencao";
 }
 
-async function processarEvento(evento: EventoNutre, cliente: Cliente): Promise<void> {
+async function processarEvento(
+  evento: EventoNutre,
+  cliente: Cliente,
+  textoResposta: string
+): Promise<void> {
   switch (evento.tipo) {
     case "consentimento_lgpd":
     case "consentimento_fotos":
@@ -58,8 +72,11 @@ async function processarEvento(evento: EventoNutre, cliente: Cliente): Promise<v
       break;
 
     case "checkin":
+      await tratarRegistroEvolucao(evento.payload, cliente, textoResposta, false);
+      break;
+
     case "retorno":
-      // implementado na etapa de check-in/retorno (commit 6)
+      await tratarRegistroEvolucao(evento.payload, cliente, textoResposta, true);
       break;
 
     case "solicitacao_exclusao":
@@ -136,4 +153,121 @@ async function tratarAnamneseCompleta(
   // Geração em chamada separada — o resultado NUNCA aparece no chat:
   // entra na fila do nutricionista com status pendente_revisao.
   await gerarDietaParaRevisao({ caso, cliente, ciclo: 1 });
+}
+
+// Check-in (comparativo, sem dieta nova) e retorno mensal (gera dieta do próximo ciclo).
+async function tratarRegistroEvolucao(
+  payload: Record<string, unknown>,
+  cliente: Cliente,
+  textoResposta: string,
+  ehRetorno: boolean
+): Promise<void> {
+  const caso: Caso | null = await prisma.caso.findFirst({
+    where: { clienteId: cliente.id },
+    orderBy: { criadoEm: "desc" },
+  });
+  if (!caso) {
+    console.warn("[nutre] checkin/retorno sem caso — ignorando");
+    return;
+  }
+  const memoria = lerMemoria(caso.memoria);
+  if (!memoria.anamnese || !memoria.perfilMetabolico) {
+    console.warn("[nutre] checkin/retorno sem anamnese — ignorando");
+    return;
+  }
+
+  const pesoKg = Number(payload.pesoKg);
+  const adesao = Math.min(Math.max(Number(payload.adesao) || 0, 0), 10);
+  if (!Number.isFinite(pesoKg) || pesoKg <= 0) {
+    console.warn("[nutre] checkin/retorno com peso inválido — ignorando");
+    return;
+  }
+  const medidas = (payload.medidas ?? {}) as Record<string, number>;
+
+  // evolução vs. esperado para o objetivo
+  const objetivo = normalizarObjetivo(
+    (memoria.anamnese as Record<string, unknown>).objetivo
+  );
+  const ultimoRegistro = memoria.ultimoRegistroEm
+    ? new Date(memoria.ultimoRegistroEm)
+    : null;
+  const semanas = ultimoRegistro
+    ? Math.max((Date.now() - ultimoRegistro.getTime()) / (7 * 86400000), 0.5)
+    : 1;
+  const evolucao = avaliarEvolucaoFisica(
+    objetivo,
+    memoria.pesoBaselineKg ?? pesoKg,
+    memoria.ultimoPesoKg ?? pesoKg,
+    pesoKg,
+    semanas
+  );
+
+  // consistência: registros nos últimos 30 dias (este incluso) vs. 2 esperados (check-in + retorno)
+  const registros30d = await prisma.checkin.count({
+    where: { casoId: caso.id, data: { gte: new Date(Date.now() - 30 * 86400000) } },
+  });
+  const indice = calcularIndiceProgressao(adesao, evolucao, registros30d + 1, 2);
+
+  await prisma.checkin.create({
+    data: {
+      casoId: caso.id,
+      peso: pesoKg,
+      medidas: JSON.stringify(medidas),
+      adesao,
+      dificuldades: typeof payload.dificuldades === "string" ? payload.dificuldades : null,
+      comparativo: textoResposta || null,
+    },
+  });
+
+  const pedidos = [...(memoria.pedidosDeMudanca ?? [])];
+  if (typeof payload.pedidosDeMudanca === "string" && payload.pedidosDeMudanca.trim()) {
+    pedidos.push(payload.pedidosDeMudanca.trim());
+  }
+
+  const novaMemoria: MemoriaCaso = {
+    ...memoria,
+    ultimoPesoKg: pesoKg,
+    ultimasMedidas: { ...(memoria.ultimasMedidas ?? {}), ...medidas },
+    ultimoRegistroEm: new Date().toISOString(),
+    indiceProgressao: indice,
+    historicoIndice: [
+      ...(memoria.historicoIndice ?? []),
+      { data: new Date().toISOString(), indice },
+    ],
+    pedidosDeMudanca: pedidos,
+  };
+  await prisma.caso.update({
+    where: { id: caso.id },
+    data: { memoria: JSON.stringify(novaMemoria) },
+  });
+
+  if (!ehRetorno) return; // check-in NUNCA gera dieta nova
+
+  // defesa em código: retorno só gera dieta se o ciclo realmente fechou
+  const ultimaLiberada = await prisma.dieta.findFirst({
+    where: { casoId: caso.id, status: "liberado" },
+    orderBy: { ciclo: "desc" },
+  });
+  const dias = diasDesde(ultimaLiberada?.liberadoEm);
+  if (!ultimaLiberada || dias === null || dias < DIAS_CICLO) {
+    console.warn(
+      `[nutre] evento retorno fora do ciclo (dias=${dias}) — registrado como check-in, sem dieta nova`
+    );
+    return;
+  }
+  // não duplicar se já existe dieta em revisão
+  const emRevisao = await prisma.dieta.count({
+    where: { casoId: caso.id, status: "pendente_revisao" },
+  });
+  if (emRevisao > 0) {
+    console.warn("[nutre] retorno com dieta já em revisão — não gera outra");
+    return;
+  }
+
+  const casoAtualizado = await prisma.caso.findUniqueOrThrow({ where: { id: caso.id } });
+  await gerarDietaParaRevisao({
+    caso: casoAtualizado,
+    cliente,
+    ciclo: ultimaLiberada.ciclo + 1,
+  });
 }
