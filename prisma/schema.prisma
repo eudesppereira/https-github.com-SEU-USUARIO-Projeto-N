@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  senhaHash String
+  criadoEm  DateTime @default(now())
+}
+
+model Cliente {
+  id                   String     @id @default(cuid())
+  nome                 String
+  email                String     @unique
+  telefone             String?
+  token                String     @unique
+  status               String     @default("ativo") // ativo | pausado | perdido
+  consentimentoLgpd    Boolean    @default(false)
+  consentimentoLgpdEm  DateTime?
+  consentimentoFotos   Boolean    @default(false)
+  consentimentoFotosEm DateTime?
+  criadoEm             DateTime   @default(now())
+  casos                Caso[]
+  mensagens            Mensagem[]
+}
+
+model Caso {
+  id           String    @id @default(cuid())
+  clienteId    String
+  cliente      Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  memoria      String    @default("{}") // JSON: anamnese, medidas baseline, flags, meta, macros, indice de progressao
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  dietas       Dieta[]
+  checkins     Checkin[]
+}
+
+model Dieta {
+  id                    String    @id @default(cuid())
+  casoId                String
+  caso                  Caso      @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  ciclo                 Int       @default(1)
+  conteudo              String
+  resumoTecnico         String
+  status                String    @default("rascunho") // rascunho | pendente_revisao | liberado | devolvido
+  notasDoNutricionista  String?
+  erroValidacao         String? // anotado quando validador falha e cai para revisao manual
+  liberadoEm            DateTime?
+  criadoEm              DateTime  @default(now())
+}
+
+model Checkin {
+  id           String   @id @default(cuid())
+  casoId       String
+  caso         Caso     @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  data         DateTime @default(now())
+  peso         Float
+  medidas      String   @default("{}") // JSON
+  adesao       Int
+  dificuldades String?
+  comparativo  String?
+}
+
+model Mensagem {
+  id        String   @id @default(cuid())
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  role      String // user | assistant
+  conteudo  String
+  timestamp DateTime @default(now())
+}
+
+model Auditoria {
+  id        String   @id @default(cuid())
+  evento    String // consentimento_lgpd | consentimento_fotos | dieta_gerada | liberacao | devolucao | exclusao_solicitada | exclusao | validacao_falhou
+  payload   String   @default("{}")
+  timestamp DateTime @default(now())
+}

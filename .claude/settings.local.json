@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import pypdf; print\\('pypdf ok'\\)\")",
+      "Bash(python -c \"import fitz; print\\('pymupdf ok'\\)\")",
+      "Bash(pip list *)",
+      "Bash(npm --version)",
+      "Bash(py --version)",
+      "Bash(mkdir -p /c/Users/sdijo/AppData/Local/Temp/claude/pdf-hold)",
+      "Bash(mv *.pdf /c/Users/sdijo/AppData/Local/Temp/claude/pdf-hold/)",
+      "Bash(npx --yes create-next-app@latest . --ts --tailwind --no-eslint --app --src-dir --import-alias \"@/*\" --use-npm --yes)",
+      "Bash(tail -40 \"C:\\\\Users\\\\sdijo\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\2026-07-07T20_05_20_585Z-debug-0.log\")",
+      "Bash(npm install *)",
+      "Bash(npm approve-scripts *)",
+      "Bash(npx prisma *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('deps:', JSON.stringify\\(p.dependencies\\)\\); console.log\\('devDeps:', JSON.stringify\\(p.devDependencies\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(printf 'DATABASE_URL=\"file:./dev.db\"\\\\nANTHROPIC_API_KEY=\"\"\\\\nANTHROPIC_MODEL=\"claude-sonnet-5\"\\\\nADMIN_EMAIL=\"eudes@nutre.ai\"\\\\nADMIN_PASSWORD=\"nutre-admin-dev\"\\\\nSESSION_SECRET=\"dev-secret-trocar-em-producao-9f8a7b6c5d4e\"\\\\nAPP_URL=\"http://localhost:3000\"\\\\n')",
+      "Bash(grep -q \"^\\\\.env$\" .gitignore)",
+      "Bash(echo \".env\")",
+      "Bash(printf 'prisma/dev.db\\\\nprisma/dev.db-journal\\\\n')"
+    ]
+  }
+}
