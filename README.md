@@ -55,7 +55,8 @@ O system prompt é montado de `prompts/nutre-ai-prompt-v2.md` + `prompts/nutre-a
 
 ```bash
 npm test                          # unitários: cálculos (29) + validador (10)
-npx tsx scripts/teste-aceite.ts   # aceite E2E com personas (requer ANTHROPIC_API_KEY e servidor rodando)
+npx tsx scripts/teste-trava.ts    # trava de backend sem IA (requer servidor rodando)
+npx tsx scripts/teste-aceite.ts   # aceite E2E com personas (requer ANTHROPIC_API_KEY com créditos e servidor rodando)
 ```
 
 Caso de referência dos cálculos: homem 35a/90kg/175cm/fator 1,375 → TMB 1824, GET ≈2508, meta −20% ≈2006 kcal.
