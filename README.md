@@ -54,9 +54,19 @@ O system prompt é montado de `prompts/nutre-ai-prompt-v2.md` + `prompts/nutre-a
 ## Testes
 
 ```bash
-npm test                          # unitários: cálculos (29) + validador (10)
-npx tsx scripts/teste-trava.ts    # trava de backend sem IA (requer servidor rodando)
-npx tsx scripts/teste-aceite.ts   # aceite E2E com personas (requer ANTHROPIC_API_KEY com créditos e servidor rodando)
+npm test                               # unitários: cálculos (29) + validador (10)
+npx tsx scripts/teste-trava.ts         # trava de backend sem IA (requer servidor rodando)
+npx tsx scripts/teste-aceite-mock.ts   # aceite E2E SEM API (requer servidor em modo mock, ver abaixo)
+npx tsx scripts/teste-aceite.ts        # aceite E2E real (requer ANTHROPIC_API_KEY com créditos e servidor rodando)
+```
+
+### Modo mock (testes sem custo de API)
+
+Com `ANTHROPIC_MOCK=1`, o app usa um modelo simulado em código (`src/lib/anthropic-mock.ts`): o chat responde de forma roteirizada e a geração de dieta devolve um plano no formato exato com os números calculados pelo sistema. Todo o resto do pipeline (parser de eventos, flags determinísticas, cálculos, validador, fila, liberação, auditoria) roda de verdade:
+
+```bash
+ANTHROPIC_MOCK=1 npm run dev           # ou: ANTHROPIC_MOCK=1 npx next start
+npx tsx scripts/teste-aceite-mock.ts   # 35 verificações, custo zero
 ```
 
 Caso de referência dos cálculos: homem 35a/90kg/175cm/fator 1,375 → TMB 1824, GET ≈2508, meta −20% ≈2006 kcal.
