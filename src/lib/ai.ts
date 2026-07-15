@@ -51,6 +51,27 @@ function cfg() {
   return cache;
 }
 
+// Retentativa em erros transitórios (429 quota / 503 sobrecarga), comuns no
+// free tier do Gemini. Backoff exponencial: ~1s, 2s, 4s.
+async function comRetry<T>(fn: () => Promise<T>, tentativas = 4): Promise<T> {
+  let ultimo: unknown;
+  for (let i = 0; i < tentativas; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const status = (e as { status?: number })?.status;
+      if (status !== 429 && status !== 503) throw e;
+      ultimo = e;
+      if (i < tentativas - 1) {
+        const espera = 1000 * Math.pow(2, i);
+        console.warn(`[nutre] modelo ocupado (${status}); retry em ${espera}ms...`);
+        await new Promise((r) => setTimeout(r, espera));
+      }
+    }
+  }
+  throw ultimo;
+}
+
 export const ai = {
   messages: {
     async create(params: ChamadaModelo): Promise<RespostaModelo> {
@@ -64,22 +85,26 @@ export const ai = {
         const mensagens: OpenAI.Chat.ChatCompletionMessageParam[] = [];
         if (params.system) mensagens.push({ role: "system", content: params.system });
         for (const m of params.messages) mensagens.push({ role: m.role, content: m.content });
-        const r = await c.openai!.chat.completions.create({
-          model: c.modelo,
-          max_tokens: params.max_tokens,
-          messages: mensagens,
-        });
+        const r = await comRetry(() =>
+          c.openai!.chat.completions.create({
+            model: c.modelo,
+            max_tokens: params.max_tokens,
+            messages: mensagens,
+          })
+        );
         const texto = r.choices[0]?.message?.content ?? "";
         return { content: [{ type: "text", text: texto }] };
       }
 
       // anthropic
-      const r = await c.anthropic!.messages.create({
-        model: c.modelo,
-        max_tokens: params.max_tokens,
-        system: params.system,
-        messages: params.messages,
-      });
+      const r = await comRetry(() =>
+        c.anthropic!.messages.create({
+          model: c.modelo,
+          max_tokens: params.max_tokens,
+          system: params.system,
+          messages: params.messages,
+        })
+      );
       return { content: r.content as RespostaModelo["content"] };
     },
   },

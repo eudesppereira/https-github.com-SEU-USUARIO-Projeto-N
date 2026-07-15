@@ -37,3 +37,5 @@ main().catch((e) => {
   console.error("Falhou:", e?.message ?? e);
   process.exit(1);
 });
+
+export {};
