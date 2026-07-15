@@ -28,7 +28,17 @@
       "Bash(cp \"C:\\\\Users\\\\sdijo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-sdijo-OneDrive-Desktop-Nutre-AI\\\\d41875e3-0784-4db5-8b6f-66ab476bf09f\\\\scratchpad\\\\teste-trava.ts\" scripts/teste-trava.ts)",
       "Bash(echo \"tsc: $?\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000)",
-      "Bash(ANTHROPIC_MOCK=1 npx next start -p 3000)"
+      "Bash(ANTHROPIC_MOCK=1 npx next start -p 3000)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false; \"matou PID $\\($_.OwningProcess\\)\" })",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -Confirm:$false; \"matou PID $_\" })",
+      "Bash(curl -s -X POST http://localhost:3000/api/chat/demo-joao -H \"Content-Type: application/json\" -d '{\"inicio\":true}')",
+      "PowerShell($p = \"C:\\\\Users\\\\sdijo\\\\OneDrive\\\\Desktop\\\\Nutre-AI\\\\Abrir Nutre.AI.bat\"; $c = Get-Content $p -Raw; if \\($c -notmatch \"`r`n\"\\) { Set-Content -Path $p -Value \\($c -replace \"\\(?<!`r\\)`n\", \"`r`n\"\\) -NoNewline -Encoding ascii; \"convertido para CRLF\" } else { \"ja em CRLF\" })",
+      "PowerShell(& \"C:\\\\Users\\\\sdijo\\\\OneDrive\\\\Desktop\\\\Nutre-AI\\\\Abrir Nutre.AI.bat\")",
+      "Bash(curl -s -o /dev/null -w \"porta 3000: %{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(sed -i 's/exit \\(200 -ne \\(try{\\(Invoke-WebRequest -UseBasicParsing http:\\\\/\\\\/localhost:3000 -TimeoutSec \\\\\\([12]\\\\\\)\\).StatusCode}catch{0}\\)\\)/exit \\(200 -ne $\\(try{\\(Invoke-WebRequest -UseBasicParsing http:\\\\/\\\\/localhost:3000 -TimeoutSec \\\\1\\).StatusCode}catch{0}\\)\\)/g' \"Abrir Nutre.AI.bat\")",
+      "Bash(grep -c 'ne \\\\$\\(try' \"Abrir Nutre.AI.bat\")",
+      "Bash(node -e \"try{require.resolve\\('openai'\\);console.log\\('sim'\\)}catch{console.log\\('nao'\\)}\")",
+      "Bash(npm i *)"
     ]
   }
 }
