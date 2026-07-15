@@ -20,6 +20,11 @@ model Cliente {
   email                String     @unique
   telefone             String?
   token                String     @unique
+  senhaHash            String? // senha do paciente para o painel (opcional; login por link mágico continua válido)
+  idade                Int?
+  cidade               String?
+  ocupacao             String?
+  rendaMensal          String? // faixa de renda p/ encaixe de custo dos alimentos
   status               String     @default("ativo") // ativo | pausado | perdido
   consentimentoLgpd    Boolean    @default(false)
   consentimentoLgpdEm  DateTime?
@@ -39,6 +44,7 @@ model Caso {
   atualizadoEm DateTime  @updatedAt
   dietas       Dieta[]
   checkins     Checkin[]
+  fotos        Foto[]
 }
 
 model Dieta {
@@ -62,9 +68,22 @@ model Checkin {
   data         DateTime @default(now())
   peso         Float
   medidas      String   @default("{}") // JSON
-  adesao       Int
+  adesao       Int? // nulo em anotações feitas pelo paciente no painel
   dificuldades String?
   comparativo  String?
+  origem       String   @default("chat") // chat | painel
+  observacao   String?
+}
+
+model Foto {
+  id        String   @id @default(cuid())
+  casoId    String
+  caso      Caso     @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  dados     String // data URI (base64) da imagem — armazenamento simples no MVP
+  angulo    String? // frente | lateral | costas | outro
+  ciclo     Int      @default(1)
+  origem    String   @default("painel") // painel | chat
+  criadoEm  DateTime @default(now())
 }
 
 model Mensagem {

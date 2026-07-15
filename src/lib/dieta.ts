@@ -41,6 +41,16 @@ function montarContextoCaso(memoria: MemoriaCaso, cliente: Cliente, ciclo: numbe
     `Ciclo: ${ciclo} (${ciclo === 1 ? "primeira dieta" : "retorno mensal"})`,
     `Data de hoje: ${new Date().toLocaleDateString("pt-BR")}`,
     `Nome do paciente: ${cliente.nome}`,
+    [
+      cliente.idade ? `Idade: ${cliente.idade}` : null,
+      cliente.cidade ? `Cidade: ${cliente.cidade}` : null,
+      cliente.ocupacao ? `Ocupação: ${cliente.ocupacao}` : null,
+      cliente.rendaMensal
+        ? `Renda média mensal: ${cliente.rendaMensal} (use para encaixar o custo dos alimentos na realidade do paciente)`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" | "),
     "",
     "### Anamnese",
     "```json",

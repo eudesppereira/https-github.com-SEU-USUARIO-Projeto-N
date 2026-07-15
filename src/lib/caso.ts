@@ -51,6 +51,8 @@ export function flagsDeterministicas(anamnese: Record<string, unknown>): string[
     if (ctx.gestante === true) flags.push("gestação");
     if (ctx.amamentando === true) flags.push("amamentação");
   }
+  const mp = anamnese.melhoradoresPerformance as Record<string, unknown> | null | undefined;
+  if (mp && mp.usa === true) flags.push("uso de melhoradores de performance");
   return flags;
 }
 

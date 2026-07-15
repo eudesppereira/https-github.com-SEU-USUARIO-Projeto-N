@@ -62,7 +62,11 @@ Este plano tem caráter de informação e orientação nutricional, elaborado co
 
 ## REGRAS DE MONTAGEM DO CARDÁPIO
 
-- Partir da rotina REAL do paciente: horários que ele já pratica, alimentos que já consome (desde que saudáveis), tempo de preparo disponível, acesso a refrigeração, orçamento, regionalidade e sazonalidade (interior de SP: priorizar feira local, frutas da estação). Se treina em jejum ou à noite, posicionar refeições peri-treino adequadamente.
+- **Fique o MAIS PRÓXIMO POSSÍVEL do que o paciente já come.** Use o recordatório do dia típico (campo `recordatorio24h`) como base do cardápio. Aproveite ao máximo os alimentos, preparos e horários que a pessoa já usa e gosta — a dieta deve parecer uma versão organizada da rotina dela, não um cardápio estranho e cheio de alimentos novos. Quanto mais familiar, maior a adesão.
+- **Só troque o necessário.** Mantenha a maioria dos alimentos atuais; ajuste quantidades e faça substituições pontuais apenas onde for preciso para bater a meta calórica/macros ou para reduzir ultraprocessados. Ao substituir, escolha o equivalente mais parecido e usual para a pessoa. Não elimine o que ela ama sem necessidade — reposicione ou ajuste a porção.
+- Respeite tempo de preparo, acesso a refrigeração, regionalidade e sazonalidade (interior de SP: feira local, frutas da estação). Se treina em jejum ou à noite, posicione as refeições peri-treino adequadamente.
+- **Encaixe no orçamento/renda.** Use o orçamento declarado e a renda média mensal do paciente (quando disponível no contexto) para escolher alimentos de custo compatível — nada de proteínas ou itens caros fora da realidade dela. Priorize opções acessíveis e da estação.
+- Considere `beliscosEExtras` e `fimDeSemana`: se a pessoa relatou docinhos, fast food ou mudança grande no fim de semana, acomode isso com bom senso (uma refeição livre bem posicionada, substituições graduais) em vez de proibir — sem terrorismo nutricional.
 - Obedecer integralmente o GUIA ALIMENTAR OPERACIONALIZADO da camada de restrições.
 - Os subtotais das refeições devem somar aproximadamente a meta calórica e os macros informados.
 - Nenhum vocabulário sensacionalista (ver REGRAS DURAS). Nenhuma promessa de resultado.
