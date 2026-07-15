@@ -69,20 +69,35 @@ export default function Chat({
     fimRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensagens, enviando]);
 
-  useEffect(() => {
-    if (mensagensIniciais.length === 0 && !iniciou.current) {
-      iniciou.current = true;
-      setEnviando(true);
-      fetch(`/api/chat/${token}`, {
+  async function iniciarConversa() {
+    setErro(null);
+    setEnviando(true);
+    try {
+      const r = await fetch(`/api/chat/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inicio: true }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.mensagens) setMensagens((m) => [...m, ...d.mensagens]);
-        })
-        .finally(() => setEnviando(false));
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.mensagens?.length) {
+        setMensagens((m) => [...m, ...d.mensagens]);
+      } else {
+        setErro(
+          d.erro ??
+            "Não consegui iniciar a conversa agora. Toque em “Tentar de novo”."
+        );
+      }
+    } catch {
+      setErro("Sem conexão. Toque em “Tentar de novo”.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  useEffect(() => {
+    if (mensagensIniciais.length === 0 && !iniciou.current) {
+      iniciou.current = true;
+      iniciarConversa();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -199,8 +214,16 @@ export default function Chat({
           </div>
         )}
         {erro && (
-          <div className="mx-auto max-w-[85%] rounded bg-red-100 px-3 py-2 text-center text-sm text-red-700">
-            {erro}
+          <div className="mx-auto max-w-[85%] space-y-2 rounded bg-red-100 px-3 py-2 text-center text-sm text-red-700">
+            <div>{erro}</div>
+            {mensagens.length === 0 && !enviando && (
+              <button
+                onClick={iniciarConversa}
+                className="rounded-full bg-[#075e54] px-4 py-1.5 text-xs font-semibold text-white"
+              >
+                Tentar de novo
+              </button>
+            )}
           </div>
         )}
         <div ref={fimRef} />
