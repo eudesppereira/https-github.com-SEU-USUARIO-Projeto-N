@@ -27,7 +27,18 @@ interface Props {
   fotos: Foto[];
 }
 
-const MEDIDAS_PRINCIPAIS = ["cintura", "abdomen", "quadril", "braco", "coxa"];
+const MEDIDAS: { chave: string; rotulo: string }[] = [
+  { chave: "punho", rotulo: "Punho" },
+  { chave: "antebraco", rotulo: "Antebraço" },
+  { chave: "braco", rotulo: "Braço" },
+  { chave: "peitoral", rotulo: "Peitoral" },
+  { chave: "cintura", rotulo: "Cintura" },
+  { chave: "abdomen", rotulo: "Abdômen (umbigo)" },
+  { chave: "quadril", rotulo: "Quadril" },
+  { chave: "coxa", rotulo: "Coxa" },
+  { chave: "panturrilha", rotulo: "Panturrilha" },
+  { chave: "tornozelo", rotulo: "Tornozelo" },
+];
 
 function fmtData(iso: string) {
   return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
@@ -215,12 +226,12 @@ export default function Dashboard({
                   className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-emerald-600"
                 />
               </label>
-              {MEDIDAS_PRINCIPAIS.map((m) => (
-                <label key={m} className="text-xs font-medium text-gray-600 capitalize">
-                  {m} (cm)
+              {MEDIDAS.map(({ chave, rotulo }) => (
+                <label key={chave} className="text-xs font-medium text-gray-600">
+                  {rotulo} (cm)
                   <input
-                    value={medidas[m] ?? ""}
-                    onChange={(e) => setMedidas((s) => ({ ...s, [m]: e.target.value }))}
+                    value={medidas[chave] ?? ""}
+                    onChange={(e) => setMedidas((s) => ({ ...s, [chave]: e.target.value }))}
                     type="number"
                     step="0.1"
                     className="mt-1 w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-emerald-600"
