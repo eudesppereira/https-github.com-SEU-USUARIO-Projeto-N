@@ -24,10 +24,20 @@ const corStatus: Record<string, string> = {
 
 export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
   const [criando, setCriando] = useState(false);
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [linkNovo, setLinkNovo] = useState<string | null>(null);
+  const vazio = {
+    nome: "",
+    email: "",
+    telefone: "",
+    idade: "",
+    cidade: "",
+    ocupacao: "",
+    rendaMensal: "",
+    senha: "",
+  };
+  const [form, setForm] = useState(vazio);
+  const set = (campo: keyof typeof vazio) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [campo]: e.target.value }));
+  const [linkNovo, setLinkNovo] = useState<{ link: string; painel: string } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [copiado, setCopiado] = useState<string | null>(null);
@@ -41,16 +51,14 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
       const r = await fetch("/api/admin/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, telefone }),
+        body: JSON.stringify(form),
       });
       const d = await r.json();
       if (!r.ok) {
         setErro(d.erro ?? "erro ao criar");
       } else {
-        setLinkNovo(d.link);
-        setNome("");
-        setEmail("");
-        setTelefone("");
+        setLinkNovo({ link: d.link, painel: d.painel });
+        setForm(vazio);
         router.refresh();
       }
     } finally {
@@ -90,47 +98,80 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
       </div>
 
       {criando && (
-        <form onSubmit={criar} className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <input
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Nome completo *"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-mail *"
-              type="email"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-            <input
-              value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              placeholder="Telefone"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
+        <form onSubmit={criar} className="space-y-4 rounded-xl bg-white p-5 shadow-sm">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">Dados do paciente</h2>
+            <p className="text-xs text-gray-500">* obrigatórios. Os demais ajudam na avaliação e no encaixe de custo dos alimentos.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-medium text-gray-600">
+              Nome completo *
+              <input value={form.nome} onChange={set("nome")} placeholder="Ex.: Maria Silva"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              E-mail *
+              <input value={form.email} onChange={set("email")} type="email" placeholder="maria@email.com"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Telefone
+              <input value={form.telefone} onChange={set("telefone")} placeholder="(19) 90000-0000"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Idade
+              <input value={form.idade} onChange={set("idade")} type="number" min={0} placeholder="Ex.: 32"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Cidade
+              <input value={form.cidade} onChange={set("cidade")} placeholder="Ex.: Piracicaba/SP"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Ocupação (trabalho)
+              <input value={form.ocupacao} onChange={set("ocupacao")} placeholder="Ex.: professora"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Renda média mensal
+              <input value={form.rendaMensal} onChange={set("rendaMensal")} placeholder="Ex.: R$ 3.000 (encaixe de custo)"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
+            <label className="text-xs font-medium text-gray-600">
+              Senha do painel do paciente (opcional)
+              <input value={form.senha} onChange={set("senha")} type="text" placeholder="deixe vazio p/ acesso só por link"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+            </label>
           </div>
           {erro && <p className="text-sm text-red-600">{erro}</p>}
           {linkNovo && (
-            <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm">
-              <span className="truncate font-mono text-emerald-900">{linkNovo}</span>
-              <button
-                type="button"
-                onClick={() => copiar(linkNovo, "novo")}
-                className="shrink-0 rounded bg-emerald-700 px-2 py-1 text-xs text-white"
-              >
-                {copiado === "novo" ? "Copiado!" : "Copiar link"}
-              </button>
+            <div className="space-y-2 rounded-lg bg-emerald-50 p-3 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="w-16 shrink-0 text-xs text-emerald-800">Painel:</span>
+                <span className="truncate font-mono text-emerald-900">{linkNovo.painel}</span>
+                <button type="button" onClick={() => copiar(linkNovo.painel, "painel")}
+                  className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 text-xs text-white">
+                  {copiado === "painel" ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-16 shrink-0 text-xs text-emerald-800">Chat:</span>
+                <span className="truncate font-mono text-emerald-900">{linkNovo.link}</span>
+                <button type="button" onClick={() => copiar(linkNovo.link, "chat")}
+                  className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 text-xs text-white">
+                  {copiado === "chat" ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
             </div>
           )}
           <button
             type="submit"
-            disabled={ocupado || !nome.trim() || !email.trim()}
+            disabled={ocupado || !form.nome.trim() || !form.email.trim()}
             className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {ocupado ? "Criando…" : "Criar e gerar link mágico"}
+            {ocupado ? "Criando…" : "Criar cliente e gerar acesso"}
           </button>
         </form>
       )}

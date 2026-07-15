@@ -24,6 +24,13 @@ export default async function DetalheDieta({
   const memoria = lerMemoria(dieta.caso.memoria);
   const anamnese = (memoria.anamnese ?? {}) as Record<string, unknown>;
   const perfil = memoria.perfilMetabolico;
+  const cli = dieta.caso.cliente;
+
+  const fotos = await prisma.foto.findMany({
+    where: { casoId: dieta.casoId },
+    orderBy: { criadoEm: "desc" },
+    take: 12,
+  });
 
   const resumoAnamnese: [string, string][] = [
     ["Idade", String(anamnese.idade ?? "—")],
@@ -63,9 +70,18 @@ export default async function DetalheDieta({
           erroValidacao: dieta.erroValidacao,
           liberadoEm: dieta.liberadoEm?.toLocaleString("pt-BR") ?? null,
         }}
-        clienteNome={dieta.caso.cliente.nome}
+        clienteNome={cli.nome}
+        cadastro={{
+          idade: cli.idade,
+          cidade: cli.cidade,
+          ocupacao: cli.ocupacao,
+          rendaMensal: cli.rendaMensal,
+          email: cli.email,
+          telefone: cli.telefone,
+        }}
         flags={memoria.flags ?? []}
         resumoAnamnese={resumoAnamnese}
+        fotos={fotos.map((f) => ({ id: f.id, dados: f.dados, angulo: f.angulo }))}
       />
     </div>
   );

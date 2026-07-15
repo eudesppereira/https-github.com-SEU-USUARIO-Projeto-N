@@ -8,6 +8,35 @@ interface Msg {
   conteudo: string;
 }
 
+// reduz a imagem no navegador antes de enviar (evita uploads gigantes)
+function reduzirImagem(file: File, maxDim = 1200, qualidade = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const escala = maxDim / Math.max(width, height);
+          width = Math.round(width * escala);
+          height = Math.round(height * escala);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("sem canvas"));
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", qualidade));
+      };
+      img.onerror = reject;
+      img.src = reader.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // *negrito* estilo WhatsApp + quebras de linha
 function formatar(texto: string) {
   const partes = texto.split(/(\*[^*\n]+\*)/g);
@@ -30,8 +59,10 @@ export default function Chat({
   const [mensagens, setMensagens] = useState<Msg[]>(mensagensIniciais);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const fimRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const iniciou = useRef(false);
 
   useEffect(() => {
@@ -83,18 +114,60 @@ export default function Chat({
     }
   }
 
+  async function anexarFoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || enviandoFoto) return;
+    setErro(null);
+    setEnviandoFoto(true);
+    try {
+      const dados = await reduzirImagem(file);
+      const r = await fetch(`/api/paciente/${token}/foto`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dados }),
+      });
+      if (!r.ok) {
+        setErro((await r.json().catch(() => ({}))).erro ?? "Não consegui enviar a foto.");
+        return;
+      }
+      // registra no chat e deixa o bot acolher o envio
+      const local: Msg = { id: `foto-${Date.now()}`, role: "user", conteudo: "📷 Enviei uma foto para acompanhamento." };
+      setMensagens((m) => [...m, local]);
+      setEnviando(true);
+      const rc = await fetch(`/api/chat/${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensagem: "📷 Acabei de enviar uma foto para acompanhamento da minha evolução." }),
+      });
+      const d = await rc.json();
+      if (rc.ok && d.mensagens) setMensagens((m) => [...m, ...d.mensagens]);
+    } catch {
+      setErro("Não consegui processar a imagem.");
+    } finally {
+      setEnviando(false);
+      setEnviandoFoto(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   return (
     <div className="flex h-dvh flex-col bg-[#e5ddd5]">
       <header className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white shadow">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#128c7e] text-lg font-bold">
           N
         </div>
-        <div>
+        <div className="flex-1">
           <div className="font-semibold leading-tight">Nutre.AI</div>
           <div className="text-xs text-emerald-100">
             Nutricionista Eudes Pereira · CRN 52959
           </div>
         </div>
+        <a
+          href={`/paciente/${token}`}
+          className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/25"
+        >
+          Meu painel
+        </a>
       </header>
 
       <main className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
@@ -134,6 +207,22 @@ export default function Chat({
       </main>
 
       <footer className="flex items-end gap-2 bg-[#f0f0f0] px-3 py-2">
+        <input ref={fileRef} type="file" accept="image/*" onChange={anexarFoto} className="hidden" />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={enviandoFoto || enviando}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#075e54] hover:bg-black/5 disabled:opacity-40"
+          aria-label="Anexar foto"
+          title="Anexar foto"
+        >
+          {enviandoFoto ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#075e54] border-t-transparent" />
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
+              <path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z" />
+            </svg>
+          )}
+        </button>
         <textarea
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
@@ -145,7 +234,7 @@ export default function Chat({
           }}
           rows={1}
           placeholder="Digite sua mensagem"
-          className="max-h-32 flex-1 resize-none rounded-full border-none bg-white px-4 py-2.5 text-[15px] outline-none"
+          className="max-h-32 flex-1 resize-none rounded-full border-none bg-white px-4 py-2.5 text-[15px] text-gray-900 outline-none"
         />
         <button
           onClick={enviar}

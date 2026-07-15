@@ -15,11 +15,21 @@ interface Props {
     liberadoEm: string | null;
   };
   clienteNome: string;
+  cadastro: {
+    idade: number | null;
+    cidade: string | null;
+    ocupacao: string | null;
+    rendaMensal: string | null;
+    email: string;
+    telefone: string | null;
+  };
   flags: string[];
   resumoAnamnese: [string, string][];
+  fotos: { id: string; dados: string; angulo: string | null }[];
 }
 
-export default function RevisaoDieta({ dieta, clienteNome, flags, resumoAnamnese }: Props) {
+export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resumoAnamnese, fotos }: Props) {
+  const [zoom, setZoom] = useState<string | null>(null);
   const [conteudo, setConteudo] = useState(dieta.conteudo);
   const [notas, setNotas] = useState(dieta.notas);
   const [instrucoes, setInstrucoes] = useState("");
@@ -89,6 +99,29 @@ export default function RevisaoDieta({ dieta, clienteNome, flags, resumoAnamnese
 
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          Cadastro do paciente
+        </h2>
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+          {(
+            [
+              ["Idade", cadastro.idade != null ? `${cadastro.idade}` : "—"],
+              ["Cidade", cadastro.cidade ?? "—"],
+              ["Ocupação", cadastro.ocupacao ?? "—"],
+              ["Renda mensal", cadastro.rendaMensal ?? "—"],
+              ["E-mail", cadastro.email],
+              ["Telefone", cadastro.telefone ?? "—"],
+            ] as [string, string][]
+          ).map(([k, v]) => (
+            <div key={k}>
+              <dt className="text-gray-500">{k}</dt>
+              <dd className="font-medium text-gray-900 break-words">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="rounded-xl bg-white p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
           Anamnese e cálculos
         </h2>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
@@ -100,6 +133,29 @@ export default function RevisaoDieta({ dieta, clienteNome, flags, resumoAnamnese
           ))}
         </dl>
       </section>
+
+      {fotos.length > 0 && (
+        <section className="rounded-xl bg-white p-4 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Fotos do paciente ({fotos.length})
+          </h2>
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {fotos.map((f) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={f.id}
+                src={f.dados}
+                alt={f.angulo ?? "foto"}
+                onClick={() => setZoom(f.dados)}
+                className="aspect-square w-full cursor-pointer rounded-lg object-cover"
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-gray-400">
+            Confidenciais — uso exclusivo para avaliação. Não compartilhar.
+          </p>
+        </section>
+      )}
 
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
@@ -185,6 +241,16 @@ export default function RevisaoDieta({ dieta, clienteNome, flags, resumoAnamnese
               Cancelar
             </button>
           </div>
+        </div>
+      )}
+
+      {zoom && (
+        <div
+          onClick={() => setZoom(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={zoom} alt="Foto ampliada" className="max-h-full max-w-full rounded-lg" />
         </div>
       )}
     </main>
