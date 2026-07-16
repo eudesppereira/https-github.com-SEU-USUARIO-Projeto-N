@@ -25,6 +25,7 @@ model Cliente {
   cidade               String?
   ocupacao             String?
   rendaMensal          String? // faixa de renda p/ encaixe de custo dos alimentos
+  plano                String? // plano de assinatura escolhido no cadastro (essencial | performance | premium)
   status               String     @default("ativo") // ativo | pausado | perdido
   consentimentoLgpd    Boolean    @default(false)
   consentimentoLgpdEm  DateTime?
@@ -57,6 +58,7 @@ model Dieta {
   status                String    @default("rascunho") // rascunho | pendente_revisao | liberado | devolvido
   notasDoNutricionista  String?
   erroValidacao         String? // anotado quando validador falha e cai para revisao manual
+  pdfDados              String? // PDF final em base64, gerado na liberação (mesmo padrão de Foto.dados)
   liberadoEm            DateTime?
   criadoEm              DateTime  @default(now())
 }

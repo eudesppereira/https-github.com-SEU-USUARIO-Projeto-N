@@ -36,11 +36,13 @@ Gorduras: [g]g ([kcal] | [%])
 
 *[Refeição 1 — horário]*
 
-- [Alimento] — [quantidade]
+- [Alimento] — [medida caseira equivalente] ([X]g)
 
 Subtotal: [kcal] | P [g] C [g] G [g]
 
 [repetir por refeição]
+
+**Formato obrigatório de cada item do cardápio**: alimento, depois a medida caseira, depois o peso em gramas entre parênteses — ex.: "Arroz branco cozido — 6 colheres de sopa (90g)", "Peito de frango grelhado — 1 filé médio (130g)", "Banana prata — 1 unidade média (100g)", "Azeite de oliva — 1 colher de sopa (13g)". Use medidas que a pessoa reconhece no dia a dia (unidade, fatia, colher de sopa/chá, xícara, escumadeira, concha, punhado) — nunca deixe um item só em gramas e nunca só em medida caseira sem o peso. Ao final de cada refeição, sempre feche com a linha de Subtotal com o total calórico e macros daquela refeição.
 
 *SUBSTITUIÇÕES*
 

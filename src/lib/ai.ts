@@ -41,12 +41,19 @@ function cfg() {
   const provedor = resolverProvedor();
   const modelo = resolverModelo(provedor);
   cache = { provedor, modelo };
+  // timeout explícito — sem isso, uma chamada travada no free tier do Gemini
+  // (ou instabilidade de rede) pode pendurar o request bem além do que o
+  // usuário aguenta esperar, parecendo "não responde" no chat.
+  const TIMEOUT_MS = 20_000;
   if (provedor === "anthropic") {
-    cache.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    cache.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      timeout: TIMEOUT_MS,
+    });
   } else if (provedor === "gemini") {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY não definido (AI_PROVIDER=gemini).");
-    cache.openai = new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL });
+    cache.openai = new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL, timeout: TIMEOUT_MS });
   }
   return cache;
 }

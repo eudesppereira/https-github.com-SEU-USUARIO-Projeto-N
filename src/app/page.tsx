@@ -15,19 +15,27 @@ export default function Home() {
       <section className="bg-[var(--color-brand-strong)]">
         <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-white font-display text-base font-extrabold text-[var(--color-brand-strong)]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white font-display text-base font-extrabold text-[var(--color-brand-strong)]">
               N
             </div>
             <span className="font-display text-lg font-bold tracking-tight text-white">
               Nutre.AI
             </span>
           </div>
-          <Link
-            href="/admin"
-            className="rounded-sm border border-white/25 px-3 py-1.5 text-sm font-medium text-white/80 transition hover:border-white/50 hover:text-white"
-          >
-            Área do profissional
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/planos"
+              className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-[var(--color-brand-strong)] transition hover:bg-white/90"
+            >
+              Ver planos
+            </Link>
+            <Link
+              href="/admin"
+              className="rounded-xl border border-white/25 px-3 py-1.5 text-sm font-medium text-white/80 transition hover:border-white/50 hover:text-white"
+            >
+              Área do profissional
+            </Link>
+          </div>
         </header>
 
         <div className="mx-auto grid w-full max-w-5xl gap-10 px-6 pb-16 pt-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-24 lg:pt-10">
@@ -43,13 +51,21 @@ export default function Home() {
               sai do forno sem passar pelo nutricionista{" "}
               <strong className="font-semibold text-white">Eudes Pereira, CRN 52959</strong>.
             </p>
-            <p className="mt-8 text-sm" style={{ color: "oklch(78% 0.02 155)" }}>
-              Já é cliente? Acesse pelo link exclusivo que você recebeu no WhatsApp.
-            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                href="/planos"
+                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[var(--color-brand-strong)] transition hover:bg-white/90"
+              >
+                Ver planos e assinar
+              </Link>
+              <p className="text-sm" style={{ color: "oklch(78% 0.02 155)" }}>
+                Já é cliente? Acesse pelo link exclusivo que você recebeu no WhatsApp.
+              </p>
+            </div>
           </div>
 
           {/* assinatura visual: ficha de medição real, não um card-dashboard genérico */}
-          <div className="mx-auto w-full max-w-sm rounded-sm bg-[var(--color-surface)] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] lg:mx-0 lg:justify-self-end">
+          <div className="mx-auto w-full max-w-sm rounded-xl bg-[var(--color-surface)] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] lg:mx-0 lg:justify-self-end">
             <div className="flex items-baseline justify-between border-b border-[var(--color-line)] px-5 py-4">
               <div>
                 <p className="text-[11px] text-[var(--color-ink-soft)]">Ficha de acompanhamento</p>
@@ -119,7 +135,7 @@ export default function Home() {
               <p className="mb-2 text-sm font-semibold text-[var(--color-ink)]">
                 Você registra, a ficha atualiza
               </p>
-              <div className="overflow-hidden rounded-sm border border-[var(--color-line)]">
+              <div className="overflow-hidden rounded-xl border border-[var(--color-line)]">
                 {[
                   { data: "12 jun", peso: "78,4 kg" },
                   { data: "19 jun", peso: "77,6 kg" },
@@ -141,7 +157,7 @@ export default function Home() {
         <section className="border-y border-[var(--color-line)] bg-[var(--color-brand-soft)]">
           <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-10 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-[var(--color-brand)] font-display text-sm font-bold text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-brand)] font-display text-sm font-bold text-white">
                 EP
               </div>
               <div>

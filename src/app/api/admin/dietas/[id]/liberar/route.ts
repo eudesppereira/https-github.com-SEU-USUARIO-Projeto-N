@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 import { sessaoAdminValida } from "@/lib/auth";
 import { auditar } from "@/lib/audit";
 import { encontrarTermosProibidos } from "@/lib/validador";
+import { gerarDietaPdf } from "@/lib/pdf";
+
+export const runtime = "nodejs";
 
 export async function POST(
   req: NextRequest,
@@ -40,13 +43,22 @@ export async function POST(
       { status: 422 }
     );
 
+  const liberadoEm = new Date();
+  const pdfBuffer = await gerarDietaPdf({
+    clienteNome: dieta.caso.cliente.nome,
+    ciclo: dieta.ciclo,
+    dataLiberacao: liberadoEm,
+    conteudo: conteudoFinal,
+  });
+
   const liberada = await prisma.dieta.update({
     where: { id },
     data: {
       conteudo: conteudoFinal,
       notasDoNutricionista: body.notas?.trim() || null,
       status: "liberado",
-      liberadoEm: new Date(),
+      liberadoEm,
+      pdfDados: pdfBuffer.toString("base64"),
     },
   });
 
@@ -64,12 +76,13 @@ export async function POST(
     dieta.ciclo === 1
       ? `Boa notícia, ${nome}! 🎉 Seu plano foi revisado e liberado pelo nutricionista Eudes Pereira (CRN 52959). Aqui está:`
       : `${nome}, sua nova dieta do ciclo ${dieta.ciclo} foi revisada e liberada pelo nutricionista Eudes Pereira (CRN 52959)! Cada mês é uma construção — segue o plano atualizado:`;
+  const urlPdf = `${(process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}/api/paciente/${dieta.caso.cliente.token}/dieta/${dieta.id}/pdf`;
 
   await prisma.mensagem.create({
     data: {
       clienteId: dieta.caso.clienteId,
       role: "assistant",
-      conteudo: `${abertura}\n\n${conteudoFinal}\n\nQualquer dúvida sobre o plano, é só perguntar por aqui! 💚`,
+      conteudo: `${abertura}\n\n${conteudoFinal}\n\n📄 PDF do plano: ${urlPdf}\n\nQualquer dúvida sobre o plano, é só perguntar por aqui! 💚`,
     },
   });
 

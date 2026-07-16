@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 export default function LoginAdmin() {
   const [senha, setSenha] = useState("");
@@ -29,14 +30,20 @@ export default function LoginAdmin() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[var(--background)]">
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[var(--color-tech-navy)]">
+      <div className="pointer-events-none absolute -left-32 top-1/3 h-96 w-96 rounded-full bg-[var(--color-tech-cyan)]/12 hidden" />
+      <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-[var(--color-brand-mid)]/15 hidden" />
       <form
         onSubmit={entrar}
-        className="w-full max-w-sm space-y-4 rounded-sm bg-white p-8 shadow"
+        className="relative w-full max-w-sm space-y-4 rounded-xl border border-white/10 bg-white/[0.06] p-8 text-white shadow-[var(--shadow-lifted)] "
       >
         <div>
-          <h1 className="text-xl font-bold text-[var(--color-ink)]">Nutre.AI — Painel</h1>
-          <p className="text-sm text-[var(--color-ink-soft)]">Acesso do nutricionista</p>
+          <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--color-tech-cyan)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-tech-cyan)] shadow-[0_0_8px_2px_var(--color-tech-cyan)]" />
+            Área do profissional
+          </div>
+          <h1 className="text-xl font-bold">Nutre.AI — Painel</h1>
+          <p className="text-sm text-white/60">Acesso do nutricionista</p>
         </div>
         <input
           type="password"
@@ -44,16 +51,12 @@ export default function LoginAdmin() {
           onChange={(e) => setSenha(e.target.value)}
           placeholder="Senha"
           autoFocus
-          className="w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+          className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-white outline-none placeholder:text-white/40 focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan)]/25"
         />
-        {erro && <p className="text-sm text-red-600">{erro}</p>}
-        <button
-          type="submit"
-          disabled={carregando || !senha}
-          className="w-full rounded-sm bg-[var(--color-brand)] py-2 font-medium text-white hover:bg-[var(--color-brand-strong)] disabled:opacity-50"
-        >
+        {erro && <p className="text-sm text-red-300">{erro}</p>}
+        <Button type="submit" disabled={carregando || !senha} className="w-full">
           {carregando ? "Entrando…" : "Entrar"}
-        </button>
+        </Button>
       </form>
     </div>
   );

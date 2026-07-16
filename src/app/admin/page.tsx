@@ -35,7 +35,7 @@ export default async function FilaAdmin() {
     return (
       <Link
         href={`/admin/dietas/${dieta.id}`}
-        className="block rounded-sm border border-[var(--color-line)] bg-white p-4 shadow-sm transition hover:border-emerald-500"
+        className="block rounded-xl border border-[var(--color-line)] bg-white p-4 shadow-[var(--shadow-soft)] transition hover:border-[var(--color-tech-cyan)] hover:shadow-[var(--shadow-soft)]"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -79,7 +79,7 @@ export default async function FilaAdmin() {
             Aguardando revisão ({pendentes.length})
           </h1>
           {pendentes.length === 0 ? (
-            <p className="rounded-sm border border-dashed border-[var(--color-line-strong)] p-6 text-center text-sm text-[var(--color-ink-soft)]">
+            <p className="rounded-xl border border-dashed border-[var(--color-line-strong)] p-6 text-center text-sm text-[var(--color-ink-soft)]">
               Nenhum caso na fila. 👌
             </p>
           ) : (
@@ -101,7 +101,7 @@ export default async function FilaAdmin() {
                 <Link
                   key={d.id}
                   href={`/admin/dietas/${d.id}`}
-                  className="flex items-center justify-between rounded-sm bg-white px-4 py-2 text-sm shadow-sm"
+                  className="flex items-center justify-between rounded-xl bg-white px-4 py-2.5 text-sm shadow-[var(--shadow-soft)] transition hover:shadow-[var(--shadow-soft)]"
                 >
                   <span>
                     {d.caso.cliente.nome} · ciclo {d.ciclo}

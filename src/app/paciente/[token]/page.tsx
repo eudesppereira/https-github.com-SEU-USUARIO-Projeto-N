@@ -39,7 +39,10 @@ export default async function PaginaPaciente({
       })
     : [];
   const dietaLiberada = caso
-    ? await prisma.dieta.findFirst({ where: { casoId: caso.id, status: "liberado" } })
+    ? await prisma.dieta.findFirst({
+        where: { casoId: caso.id, status: "liberado" },
+        orderBy: { liberadoEm: "desc" },
+      })
     : null;
   const dietaPendente = caso
     ? (await prisma.dieta.count({
@@ -61,6 +64,8 @@ export default async function PaginaPaciente({
         medidas: memoria.medidasBaseline ?? {},
       }}
       planoStatus={dietaLiberada ? "liberado" : dietaPendente ? "revisao" : "nenhum"}
+      dietaLiberadaId={dietaLiberada?.id ?? null}
+      cicloLiberado={dietaLiberada?.ciclo ?? null}
       checkins={checkins.map((c) => ({
         id: c.id,
         data: c.data.toISOString(),

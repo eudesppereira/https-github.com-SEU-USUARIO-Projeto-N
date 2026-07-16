@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Surface } from "@/components/ui/Surface";
+import { Button } from "@/components/ui/Button";
 
 interface Checkin {
   id: string;
@@ -23,6 +25,8 @@ interface Props {
   temAnamnese: boolean;
   baseline: { pesoKg: number | null; medidas: Record<string, number> };
   planoStatus: "liberado" | "revisao" | "nenhum";
+  dietaLiberadaId: string | null;
+  cicloLiberado: number | null;
   checkins: Checkin[];
   fotos: Foto[];
 }
@@ -79,6 +83,8 @@ export default function Dashboard({
   temAnamnese,
   baseline,
   planoStatus,
+  dietaLiberadaId,
+  cicloLiberado,
   checkins,
   fotos,
 }: Props) {
@@ -163,15 +169,18 @@ export default function Dashboard({
 
   return (
     <div className="min-h-dvh bg-[var(--background)] pb-16">
-      <header className="bg-[var(--color-brand-strong)] px-4 py-5 text-white">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
+      <header className="relative overflow-hidden bg-linear-to-br from-[var(--color-brand-strong)] via-[var(--color-brand-strong)] to-[var(--color-tech-navy)] px-4 py-6 text-white">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[var(--color-tech-cyan)]/20 hidden" />
+        <div className="relative mx-auto flex max-w-2xl items-center justify-between">
           <div>
             <p className="text-sm" style={{ color: "oklch(85% 0.02 155)" }}>Olá,</p>
             <h1 className="text-xl font-semibold">{primeiro} 👋</h1>
           </div>
           <a
             href={`/c/${token}`}
-            className="rounded-sm bg-white px-4 py-2 text-sm font-semibold text-[var(--color-brand-strong)] transition hover:bg-[var(--color-brand-soft)]"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-semibold text-white  transition hover:bg-white/25"
           >
             {temAnamnese ? "Abrir conversa" : "Iniciar consulta"}
           </a>
@@ -179,10 +188,32 @@ export default function Dashboard({
       </header>
 
       <main className="mx-auto max-w-2xl space-y-4 px-4 py-5">
-        <div className={`rounded-sm border p-3 text-sm ${statusInfo.cor}`}>{statusInfo.txt}</div>
+        <div className={`rounded-xl border p-3 text-sm ${statusInfo.cor}`}>{statusInfo.txt}</div>
+
+        {planoStatus === "liberado" && dietaLiberadaId && (
+          <Surface
+            variant="glass-dark"
+            className="flex items-center justify-between bg-linear-to-br from-[var(--color-tech-navy)] to-[var(--color-tech-navy-strong)] p-4"
+          >
+            <div>
+              <p className="text-xs uppercase tracking-wide text-[var(--color-tech-cyan)]">Meu plano</p>
+              <p className="text-sm font-semibold text-white">
+                Plano alimentar {cicloLiberado ? `— ciclo ${cicloLiberado}` : ""}
+              </p>
+            </div>
+            <a
+              href={`/api/paciente/${token}/dieta/${dietaLiberadaId}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-[var(--color-tech-cyan)] px-4 py-2 text-sm font-semibold text-[var(--color-tech-navy-strong)] transition hover:brightness-105"
+            >
+              Baixar PDF
+            </a>
+          </Surface>
+        )}
 
         {/* resumo — uma única faixa com divisores, não três cards soltos */}
-        <div className="grid grid-cols-3 divide-x divide-[var(--color-line)] rounded-sm border border-[var(--color-line)] bg-[var(--color-surface)]">
+        <Surface className="grid grid-cols-3 divide-x divide-[var(--color-line)] overflow-hidden">
           <Stat rotulo="Objetivo" valor={cliente.objetivo ?? "—"} />
           <Stat rotulo="Peso atual" valor={pesoAtual != null ? `${pesoAtual} kg` : "—"} />
           <Stat
@@ -190,10 +221,10 @@ export default function Dashboard({
             valor={deltaPeso != null ? `${deltaPeso > 0 ? "+" : ""}${deltaPeso.toFixed(1)} kg` : "—"}
             destaque={deltaPeso != null && deltaPeso < 0 ? "energia" : undefined}
           />
-        </div>
+        </Surface>
 
         {seriePeso.length >= 2 && (
-          <section className="rounded-sm border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+          <Surface className="p-4">
             <div className="mb-1 flex items-baseline justify-between">
               <h2 className="text-sm font-semibold text-[var(--color-ink)]">Seu peso no tempo</h2>
               <span className="text-xs text-[var(--color-ink-soft)] tabular-nums">
@@ -201,12 +232,12 @@ export default function Dashboard({
               </span>
             </div>
             <Sparkline valores={seriePeso} />
-          </section>
+          </Surface>
         )}
 
         {/* acompanhamento: dados iniciais, registro e histórico num único painel,
             separados por hairline em vez de três cards empilhados */}
-        <section className="rounded-sm border border-[var(--color-line)] bg-[var(--color-surface)]">
+        <Surface>
           <div className="p-4">
             <h2 className="mb-2 text-sm font-semibold text-[var(--color-ink)]">Seus dados iniciais</h2>
             {baseline.pesoKg == null && Object.keys(baseline.medidas).length === 0 ? (
@@ -245,7 +276,7 @@ export default function Dashboard({
                     type="number"
                     step="0.1"
                     placeholder="Ex.: 84.5"
-                    className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand-soft)]"
+                    className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
                   />
                 </label>
                 {MEDIDAS.map(({ chave, rotulo }) => (
@@ -256,7 +287,7 @@ export default function Dashboard({
                       onChange={(e) => setMedidas((s) => ({ ...s, [chave]: e.target.value }))}
                       type="number"
                       step="0.1"
-                      className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand-soft)]"
+                      className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
                     />
                   </label>
                 ))}
@@ -265,15 +296,11 @@ export default function Dashboard({
                 value={obs}
                 onChange={(e) => setObs(e.target.value)}
                 placeholder="Observação (opcional) — ex.: como você está se sentindo"
-                className="w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand-soft)]"
+                className="w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
               />
-              <button
-                type="submit"
-                disabled={salvando || !peso}
-                className="rounded-sm bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-strong)] disabled:opacity-50"
-              >
+              <Button type="submit" disabled={salvando || !peso}>
                 {salvando ? "Salvando…" : "Salvar registro"}
-              </button>
+              </Button>
             </form>
             {msg && <p className="mt-2 text-sm text-[var(--color-brand)]">{msg}</p>}
           </div>
@@ -297,19 +324,15 @@ export default function Dashboard({
               </div>
             </div>
           )}
-        </section>
+        </Surface>
 
         {/* fotos */}
-        <section className="rounded-sm border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+        <Surface className="p-4">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[var(--color-ink)]">Fotos de evolução</h2>
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={enviandoFoto}
-              className="rounded-sm bg-[var(--color-brand)] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-strong)] disabled:opacity-50"
-            >
+            <Button size="sm" onClick={() => fileRef.current?.click()} disabled={enviandoFoto}>
               {enviandoFoto ? "Enviando…" : "+ Anexar foto"}
-            </button>
+            </Button>
             <input ref={fileRef} type="file" accept="image/*" onChange={subirFoto} className="hidden" />
           </div>
           <p className="mb-3 text-xs text-[var(--color-ink-soft)]">
@@ -326,21 +349,21 @@ export default function Dashboard({
                   src={f.dados}
                   alt={`Foto ${fmtData(f.criadoEm)}`}
                   onClick={() => setZoom(f.dados)}
-                  className="aspect-square w-full cursor-pointer rounded-sm object-cover"
+                  className="aspect-square w-full cursor-pointer rounded-xl object-cover shadow-[var(--shadow-soft)] transition hover:scale-[1.02]"
                 />
               ))}
             </div>
           )}
-        </section>
+        </Surface>
       </main>
 
       {zoom && (
         <div
           onClick={() => setZoom(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-tech-navy-strong)]/85 p-4 "
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={zoom} alt="Foto ampliada" className="max-h-full max-w-full rounded-sm" />
+          <img src={zoom} alt="Foto ampliada" className="max-h-full max-w-full rounded-xl shadow-[var(--shadow-lifted)]" />
         </div>
       )}
     </div>
@@ -384,10 +407,17 @@ function Sparkline({ valores }: { valores: number[] }) {
   const linha = valores.map((v, i) => `${i === 0 ? "M" : "L"}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ");
   const area = `${linha} L${px(valores.length - 1).toFixed(1)},${h - pad} L${px(0).toFixed(1)},${h - pad} Z`;
   const desce = valores[valores.length - 1] <= valores[0];
-  const cor = desce ? "var(--color-brand-mid)" : "var(--color-accent-strong)";
+  const cor = desce ? "var(--color-tech-cyan)" : "var(--color-accent-strong)";
+  const gradId = `sparkline-fill-${desce ? "cyan" : "accent"}`;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-20 w-full" role="img" aria-label="Evolução do peso ao longo do tempo">
-      <path d={area} fill={cor} opacity={0.08} />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={cor} stopOpacity={0.28} />
+          <stop offset="100%" stopColor={cor} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
       <path d={linha} fill="none" stroke={cor} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       {valores.map((v, i) => (
         <circle key={i} cx={px(i)} cy={py(v)} r={i === valores.length - 1 ? 4 : 2.5} fill={cor} vectorEffect="non-scaling-stroke" />

@@ -118,12 +118,38 @@ export default function Chat({
       });
       const d = await r.json();
       if (!r.ok) {
-        setErro(d.erro ?? "Erro ao enviar. Tente de novo.");
+        // a mensagem já foi salva no servidor mesmo se o modelo falhou —
+        // "Tentar de novo" reenvia sem duplicar (ver reenviar()).
+        setErro(d.erro ?? "Não consegui responder. Toque em “Tentar de novo”.");
       } else if (d.mensagens) {
         setMensagens((m) => [...m, ...d.mensagens]);
       }
     } catch {
-      setErro("Sem conexão. Tente de novo.");
+      setErro("Sem conexão. Toque em “Tentar de novo”.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  // reenvia só a resposta do modelo — a mensagem do usuário já está salva.
+  async function reenviar() {
+    if (enviando) return;
+    setErro(null);
+    setEnviando(true);
+    try {
+      const r = await fetch(`/api/chat/${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ retry: true }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        setErro(d.erro ?? "Não consegui responder. Toque em “Tentar de novo”.");
+      } else if (d.mensagens) {
+        setMensagens((m) => [...m, ...d.mensagens]);
+      }
+    } catch {
+      setErro("Sem conexão. Toque em “Tentar de novo”.");
     } finally {
       setEnviando(false);
     }
@@ -167,8 +193,8 @@ export default function Chat({
 
   return (
     <div className="flex h-dvh flex-col bg-[var(--background)]">
-      <header className="flex items-center gap-3 bg-[var(--color-brand-strong)] px-4 py-3 text-white shadow">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-brand)] text-lg font-bold">
+      <header className="flex items-center gap-3 bg-linear-to-r from-[var(--color-brand-strong)] to-[var(--color-tech-navy)] px-4 py-3 text-white shadow-[var(--shadow-soft)]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-lg font-bold ">
           N
         </div>
         <div className="flex-1">
@@ -192,10 +218,10 @@ export default function Chat({
             className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-[15px] leading-snug shadow-sm ${
+              className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3.5 py-2.5 text-[15px] leading-snug shadow-[var(--shadow-soft)] ${
                 m.role === "user"
-                  ? "rounded-br-none bg-[var(--color-brand-soft)] text-[var(--color-ink)]"
-                  : "rounded-bl-none border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)]"
+                  ? "rounded-br-md bg-[var(--color-brand-soft)] text-[var(--color-ink)]"
+                  : "rounded-bl-md border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)]"
               }`}
             >
               {formatar(m.conteudo)}
@@ -214,12 +240,12 @@ export default function Chat({
           </div>
         )}
         {erro && (
-          <div className="mx-auto max-w-[85%] space-y-2 rounded bg-red-100 px-3 py-2 text-center text-sm text-red-700">
+          <div className="mx-auto max-w-[85%] space-y-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
             <div>{erro}</div>
-            {mensagens.length === 0 && !enviando && (
+            {!enviando && (
               <button
-                onClick={iniciarConversa}
-                className="rounded-full bg-[var(--color-brand)] px-4 py-1.5 text-xs font-semibold text-white"
+                onClick={mensagens.length === 0 ? iniciarConversa : reenviar}
+                className="rounded-full bg-[var(--color-tech-navy)] px-4 py-1.5 text-xs font-semibold text-white"
               >
                 Tentar de novo
               </button>
@@ -257,12 +283,12 @@ export default function Chat({
           }}
           rows={1}
           placeholder="Digite sua mensagem"
-          className="max-h-32 flex-1 resize-none rounded-full border-none bg-white px-4 py-2.5 text-[15px] text-gray-900 outline-none"
+          className="max-h-32 flex-1 resize-none rounded-full border border-[var(--color-line)] bg-white px-4 py-2.5 text-[15px] text-gray-900 outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
         />
         <button
           onClick={enviar}
           disabled={enviando || !texto.trim()}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand)] text-white disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[var(--color-tech-navy)] to-[var(--color-tech-navy-strong)] text-white shadow-[var(--shadow-soft)] disabled:opacity-40 disabled:shadow-none"
           aria-label="Enviar"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">

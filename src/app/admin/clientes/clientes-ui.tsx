@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 interface Linha {
   id: string;
@@ -86,19 +87,18 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-[var(--color-ink)]">Clientes ({linhas.length})</h1>
-        <button
+        <Button
           onClick={() => {
             setCriando(!criando);
             setLinkNovo(null);
           }}
-          className="rounded-sm bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-brand-strong)]"
         >
           {criando ? "Fechar" : "+ Novo cliente"}
-        </button>
+        </Button>
       </div>
 
       {criando && (
-        <form onSubmit={criar} className="space-y-4 rounded-sm bg-white p-5 shadow-sm">
+        <form onSubmit={criar} className="space-y-4 rounded-xl border border-[var(--color-line)] bg-white p-5 shadow-[var(--shadow-soft)]">
           <div>
             <h2 className="text-sm font-semibold text-[var(--color-ink)]">Dados do paciente</h2>
             <p className="text-xs text-[var(--color-ink-soft)]">* obrigatórios. Os demais ajudam na avaliação e no encaixe de custo dos alimentos.</p>
@@ -107,47 +107,47 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Nome completo *
               <input value={form.nome} onChange={set("nome")} placeholder="Ex.: Maria Silva"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               E-mail *
               <input value={form.email} onChange={set("email")} type="email" placeholder="maria@email.com"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Telefone
               <input value={form.telefone} onChange={set("telefone")} placeholder="(19) 90000-0000"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Idade
               <input value={form.idade} onChange={set("idade")} type="number" min={0} placeholder="Ex.: 32"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Cidade
               <input value={form.cidade} onChange={set("cidade")} placeholder="Ex.: Piracicaba/SP"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Ocupação (trabalho)
               <input value={form.ocupacao} onChange={set("ocupacao")} placeholder="Ex.: professora"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Renda média mensal
               <input value={form.rendaMensal} onChange={set("rendaMensal")} placeholder="Ex.: R$ 3.000 (encaixe de custo)"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
             <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Senha do painel do paciente (opcional)
               <input value={form.senha} onChange={set("senha")} type="text" placeholder="deixe vazio p/ acesso só por link"
-                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
+                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]" />
             </label>
           </div>
           {erro && <p className="text-sm text-red-600">{erro}</p>}
           {linkNovo && (
-            <div className="space-y-2 rounded-sm bg-[var(--color-brand-soft)] p-3 text-sm">
+            <div className="space-y-2 rounded-xl bg-[var(--color-brand-soft)] p-3 text-sm">
               <div className="flex items-center gap-2">
                 <span className="w-16 shrink-0 text-xs text-[var(--color-brand)]">Painel:</span>
                 <span className="truncate font-mono text-[var(--color-brand-strong)]">{linkNovo.painel}</span>
@@ -166,17 +166,13 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
               </div>
             </div>
           )}
-          <button
-            type="submit"
-            disabled={ocupado || !form.nome.trim() || !form.email.trim()}
-            className="rounded-sm bg-[var(--color-ink)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          >
+          <Button type="submit" disabled={ocupado || !form.nome.trim() || !form.email.trim()}>
             {ocupado ? "Criando…" : "Criar cliente e gerar acesso"}
-          </button>
+          </Button>
         </form>
       )}
 
-      <div className="overflow-x-auto rounded-sm bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-[var(--color-line)] bg-white shadow-[var(--shadow-soft)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-line)] text-left text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
@@ -189,7 +185,7 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
           </thead>
           <tbody>
             {linhas.map((l) => (
-              <tr key={l.id} className="border-b border-[var(--color-line)] last:border-0">
+              <tr key={l.id} className="border-b border-[var(--color-line)] transition last:border-0 hover:bg-[var(--color-tech-cyan-soft)]/40">
                 <td className="px-4 py-3">
                   <div className="font-medium text-[var(--color-ink)]">{l.nome}</div>
                   <div className="text-xs text-[var(--color-ink-soft)]">{l.email}</div>
@@ -243,14 +239,14 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => copiar(l.link, l.id)}
-                      className="rounded border border-[var(--color-line-strong)] px-2 py-1 text-xs text-[var(--color-ink-soft)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
+                      className="rounded-full border border-[var(--color-line-strong)] px-2.5 py-1 text-xs text-[var(--color-ink-soft)] transition hover:border-[var(--color-tech-cyan)] hover:text-[var(--color-tech-cyan-strong)]"
                     >
                       {copiado === l.id ? "Copiado!" : "Copiar link"}
                     </button>
                     <button
                       onClick={() => excluirDados(l)}
                       title="Excluir todos os dados (LGPD)"
-                      className="rounded border border-red-200 px-2 py-1 text-xs text-red-500 hover:border-red-500 hover:bg-red-50"
+                      className="rounded-full border border-red-200 px-2.5 py-1 text-xs text-red-500 transition hover:border-red-500 hover:bg-red-50"
                     >
                       Excluir dados
                     </button>

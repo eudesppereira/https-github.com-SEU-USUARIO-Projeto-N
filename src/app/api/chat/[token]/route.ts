@@ -67,6 +67,7 @@ export async function POST(
   const body = (await req.json().catch(() => ({}))) as {
     mensagem?: string;
     inicio?: boolean;
+    retry?: boolean;
   };
 
   const historico = await prisma.mensagem.findMany({
@@ -74,32 +75,46 @@ export async function POST(
     orderBy: { timestamp: "asc" },
   });
 
-  let mensagemUser: string;
+  let mensagensModelo: { role: "user" | "assistant"; content: string }[];
+
   if (body.inicio) {
     if (historico.length > 0) {
       // chat já iniciado — nada a fazer
       return NextResponse.json({ mensagens: [] });
     }
-    mensagemUser =
-      "[SISTEMA: o cliente acabou de abrir o chat pela primeira vez. Inicie a Etapa 0 — boas-vindas e consentimento LGPD.]";
+    mensagensModelo = [
+      {
+        role: "user",
+        content:
+          "[SISTEMA: o cliente acabou de abrir o chat pela primeira vez. Inicie a Etapa 0 — boas-vindas e consentimento LGPD.]",
+      },
+    ];
+  } else if (body.retry) {
+    // reenvio: a mensagem do usuário já foi salva na tentativa anterior (que
+    // falhou só na resposta do modelo) — não duplica, só tenta gerar de novo
+    // em cima do histórico que já termina nela.
+    if (historico.length === 0 || historico[historico.length - 1].role !== "user") {
+      return NextResponse.json({ erro: "nada para reenviar" }, { status: 400 });
+    }
+    mensagensModelo = historico
+      .slice(-MAX_HISTORICO)
+      .map((m) => ({ role: m.role as "user" | "assistant", content: m.conteudo }));
   } else {
     const texto = (body.mensagem ?? "").trim();
     if (!texto) return NextResponse.json({ erro: "mensagem vazia" }, { status: 400 });
     if (texto.length > 4000)
       return NextResponse.json({ erro: "mensagem longa demais" }, { status: 400 });
-    mensagemUser = texto;
     await prisma.mensagem.create({
       data: { clienteId: cliente.id, role: "user", conteudo: texto },
     });
+    mensagensModelo = [
+      ...historico.slice(-MAX_HISTORICO).map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.conteudo,
+      })),
+      { role: "user" as const, content: texto },
+    ];
   }
-
-  const mensagensModelo = [
-    ...historico.slice(-MAX_HISTORICO).map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.conteudo,
-    })),
-    { role: "user" as const, content: mensagemUser },
-  ];
 
   const system = montarSystemPromptChat(ctx);
 

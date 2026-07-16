@@ -21,6 +21,20 @@
   --color-ink-soft: oklch(40% 0.015 155);
   --color-line: oklch(90% 0.008 155);
   --color-line-strong: oklch(80% 0.012 155);
+
+  /* navy + ciano — identidade oficial do consultório (MIV Eudes Pereira).
+     Híbrido: verde continua base/superfície grande; navy+cyan viram os
+     accents "tech" — CTA, links, focus, destaques, cabeçalho do PDF. */
+  --color-tech-cyan: #45c7f4;
+  --color-tech-cyan-strong: #1fa8db;
+  --color-tech-cyan-soft: oklch(93% 0.045 220);
+  --color-tech-navy: #0b1c33;
+  --color-tech-navy-strong: #061120;
+  --color-tech-charcoal: #4b4b4d;
+
+  /* profundidade — sombras em camadas em vez de flat border */
+  --shadow-soft: 0 1px 2px rgba(16, 24, 20, 0.05), 0 10px 28px -16px rgba(16, 24, 20, 0.22);
+  --shadow-lifted: 0 24px 60px -24px rgba(6, 17, 32, 0.4);
 }
 
 @theme inline {
