@@ -41,7 +41,7 @@ export default async function PaginaClientes() {
   });
 
   return (
-    <div className="min-h-dvh bg-gray-100">
+    <div className="min-h-dvh bg-[var(--background)]">
       <NavAdmin />
       <ClientesUI linhas={linhas} />
     </div>

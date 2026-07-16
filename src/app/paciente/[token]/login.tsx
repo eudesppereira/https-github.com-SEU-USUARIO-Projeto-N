@@ -26,32 +26,44 @@ export default function LoginPaciente({ token, nome }: { token: string; nome: st
   const primeiro = nome.split(" ")[0];
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gray-100 px-4">
-      <form onSubmit={entrar} className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-8 shadow">
-        <div className="text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-700 text-2xl font-bold text-white">
+    <div className="flex min-h-dvh items-center justify-center bg-[var(--background)] px-4">
+      <form
+        onSubmit={entrar}
+        className="w-full max-w-sm rounded-sm border border-[var(--color-line)] bg-[var(--color-surface)] p-8 shadow-[0_20px_45px_-25px_rgba(0,0,0,0.35)]"
+      >
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-[var(--color-brand)] text-base font-bold text-white">
             N
           </div>
-          <h1 className="text-lg font-bold text-gray-900">Olá, {primeiro}!</h1>
-          <p className="text-sm text-gray-500">Entre no seu painel Nutre.AI</p>
+          <div>
+            <h1 className="text-base font-semibold text-[var(--color-ink)]">Olá, {primeiro}</h1>
+            <p className="text-sm text-[var(--color-ink-soft)]">Entre no seu painel Nutre.AI</p>
+          </div>
         </div>
-        <input
-          type="password"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          placeholder="Sua senha"
-          autoFocus
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 outline-none focus:border-emerald-600"
-        />
-        {erro && <p className="text-sm text-red-600">{erro}</p>}
+
+        <label className="mb-4 block text-sm font-medium text-[var(--color-ink)]">
+          Senha
+          <input
+            type="password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            placeholder="Sua senha"
+            autoFocus
+            className="mt-1.5 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2.5 text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand-soft)]"
+          />
+        </label>
+
+        {erro && <p className="mb-4 text-sm text-red-600">{erro}</p>}
+
         <button
           type="submit"
           disabled={carregando || !senha}
-          className="w-full rounded-lg bg-emerald-700 py-2 font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="w-full rounded-sm bg-[var(--color-brand)] py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-strong)] disabled:opacity-50"
         >
           {carregando ? "Entrando…" : "Entrar"}
         </button>
-        <p className="text-center text-xs text-gray-400">
+
+        <p className="mt-4 text-center text-xs text-[var(--color-ink-soft)]">
           Não tem senha? Use o link exclusivo que você recebeu.
         </p>
       </form>

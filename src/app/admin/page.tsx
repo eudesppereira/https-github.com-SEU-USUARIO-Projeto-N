@@ -35,16 +35,16 @@ export default async function FilaAdmin() {
     return (
       <Link
         href={`/admin/dietas/${dieta.id}`}
-        className="block rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-500"
+        className="block rounded-sm border border-[var(--color-line)] bg-white p-4 shadow-sm transition hover:border-emerald-500"
       >
         <div className="flex items-center justify-between">
           <div>
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-[var(--color-ink)]">
               {dieta.caso.cliente.nome}
             </span>
-            <span className="ml-2 text-sm text-gray-500">ciclo {dieta.ciclo}</span>
+            <span className="ml-2 text-sm text-[var(--color-ink-soft)]">ciclo {dieta.ciclo}</span>
           </div>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-[var(--color-ink-soft)]">
             {dieta.criadoEm.toLocaleString("pt-BR")}
           </span>
         </div>
@@ -71,15 +71,15 @@ export default async function FilaAdmin() {
   }
 
   return (
-    <div className="min-h-dvh bg-gray-100">
+    <div className="min-h-dvh bg-[var(--background)]">
       <NavAdmin />
       <main className="mx-auto max-w-3xl space-y-8 px-4 py-8">
         <section>
-          <h1 className="mb-3 text-lg font-bold text-gray-900">
+          <h1 className="mb-3 text-lg font-bold text-[var(--color-ink)]">
             Aguardando revisão ({pendentes.length})
           </h1>
           {pendentes.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+            <p className="rounded-sm border border-dashed border-[var(--color-line-strong)] p-6 text-center text-sm text-[var(--color-ink-soft)]">
               Nenhum caso na fila. 👌
             </p>
           ) : (
@@ -93,7 +93,7 @@ export default async function FilaAdmin() {
 
         {recentes.length > 0 && (
           <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-soft)]">
               Histórico recente
             </h2>
             <div className="space-y-2">
@@ -101,14 +101,14 @@ export default async function FilaAdmin() {
                 <Link
                   key={d.id}
                   href={`/admin/dietas/${d.id}`}
-                  className="flex items-center justify-between rounded-lg bg-white px-4 py-2 text-sm shadow-sm"
+                  className="flex items-center justify-between rounded-sm bg-white px-4 py-2 text-sm shadow-sm"
                 >
                   <span>
                     {d.caso.cliente.nome} · ciclo {d.ciclo}
                   </span>
                   <span
                     className={
-                      d.status === "liberado" ? "text-emerald-700" : "text-gray-500"
+                      d.status === "liberado" ? "text-[var(--color-brand)]" : "text-[var(--color-ink-soft)]"
                     }
                   >
                     {rotuloStatus[d.status]}

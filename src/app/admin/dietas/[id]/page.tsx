@@ -57,7 +57,7 @@ export default async function DetalheDieta({
   ];
 
   return (
-    <div className="min-h-dvh bg-gray-100">
+    <div className="min-h-dvh bg-[var(--background)]">
       <NavAdmin />
       <RevisaoDieta
         dieta={{

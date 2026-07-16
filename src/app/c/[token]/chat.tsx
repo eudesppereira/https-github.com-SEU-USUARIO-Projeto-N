@@ -166,14 +166,14 @@ export default function Chat({
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-[#e5ddd5]">
-      <header className="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white shadow">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#128c7e] text-lg font-bold">
+    <div className="flex h-dvh flex-col bg-[var(--background)]">
+      <header className="flex items-center gap-3 bg-[var(--color-brand-strong)] px-4 py-3 text-white shadow">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-brand)] text-lg font-bold">
           N
         </div>
         <div className="flex-1">
           <div className="font-semibold leading-tight">Nutre.AI</div>
-          <div className="text-xs text-emerald-100">
+          <div className="text-xs text-white/70">
             Nutricionista Eudes Pereira · CRN 52959
           </div>
         </div>
@@ -194,8 +194,8 @@ export default function Chat({
             <div
               className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-[15px] leading-snug shadow-sm ${
                 m.role === "user"
-                  ? "rounded-br-none bg-[#dcf8c6] text-gray-900"
-                  : "rounded-bl-none bg-white text-gray-900"
+                  ? "rounded-br-none bg-[var(--color-brand-soft)] text-[var(--color-ink)]"
+                  : "rounded-bl-none border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)]"
               }`}
             >
               {formatar(m.conteudo)}
@@ -204,11 +204,11 @@ export default function Chat({
         ))}
         {enviando && (
           <div className="flex justify-start">
-            <div className="rounded-lg rounded-bl-none bg-white px-4 py-3 shadow-sm">
+            <div className="rounded-lg rounded-bl-none border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3 shadow-sm">
               <span className="inline-flex gap-1">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-line-strong)] [animation-delay:0ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-line-strong)] [animation-delay:150ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-line-strong)] [animation-delay:300ms]" />
               </span>
             </div>
           </div>
@@ -219,7 +219,7 @@ export default function Chat({
             {mensagens.length === 0 && !enviando && (
               <button
                 onClick={iniciarConversa}
-                className="rounded-full bg-[#075e54] px-4 py-1.5 text-xs font-semibold text-white"
+                className="rounded-full bg-[var(--color-brand)] px-4 py-1.5 text-xs font-semibold text-white"
               >
                 Tentar de novo
               </button>
@@ -229,17 +229,17 @@ export default function Chat({
         <div ref={fimRef} />
       </main>
 
-      <footer className="flex items-end gap-2 bg-[#f0f0f0] px-3 py-2">
+      <footer className="flex items-end gap-2 border-t border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
         <input ref={fileRef} type="file" accept="image/*" onChange={anexarFoto} className="hidden" />
         <button
           onClick={() => fileRef.current?.click()}
           disabled={enviandoFoto || enviando}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#075e54] hover:bg-black/5 disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--color-brand)] hover:bg-black/5 disabled:opacity-40"
           aria-label="Anexar foto"
           title="Anexar foto"
         >
           {enviandoFoto ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#075e54] border-t-transparent" />
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-brand)] border-t-transparent" />
           ) : (
             <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
               <path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z" />
@@ -262,7 +262,7 @@ export default function Chat({
         <button
           onClick={enviar}
           disabled={enviando || !texto.trim()}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-white disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand)] text-white disabled:opacity-40"
           aria-label="Enviar"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">

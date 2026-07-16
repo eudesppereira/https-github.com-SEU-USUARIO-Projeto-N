@@ -1,15 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* canvas quase-branco com fio de verde — não o bege/creme padrão de IA */
+  --background: oklch(98.5% 0.004 155);
+  --foreground: oklch(21% 0.015 155);
+
+  /* verde floresta como cor "committed" (cobre superfícies grandes: hero, header),
+     não só um acento em botão. Laranja terracota é o único contraponto quente,
+     reservado a delta positivo/estado — nunca decoração. */
+  --color-brand: oklch(28% 0.08 155);
+  --color-brand-strong: oklch(19% 0.06 155);
+  --color-brand-mid: oklch(46% 0.11 155);
+  --color-brand-soft: oklch(93% 0.03 155);
+
+  --color-accent: oklch(58% 0.17 45);
+  --color-accent-strong: oklch(48% 0.16 45);
+
+  --color-surface: oklch(100% 0 0);
+  --color-ink: oklch(21% 0.015 155);
+  --color-ink-soft: oklch(40% 0.015 155);
+  --color-line: oklch(90% 0.008 155);
+  --color-line-strong: oklch(80% 0.012 155);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-public-sans);
+  --font-display: var(--font-archivo);
 }
 
 /* App desenhado com tema claro; não inverter no modo escuro do SO
@@ -18,16 +36,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
 }
 
 /* Garantia de contraste em campos de formulário, independente do tema do SO */
 input,
 textarea,
 select {
-  color: #171717;
+  color: oklch(21% 0.015 155);
 }
 input::placeholder,
 textarea::placeholder {
-  color: #9ca3af;
+  color: oklch(52% 0.02 155);
 }

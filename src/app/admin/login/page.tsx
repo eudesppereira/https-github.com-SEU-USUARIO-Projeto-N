@@ -29,14 +29,14 @@ export default function LoginAdmin() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gray-100">
+    <div className="flex min-h-dvh items-center justify-center bg-[var(--background)]">
       <form
         onSubmit={entrar}
-        className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow"
+        className="w-full max-w-sm space-y-4 rounded-sm bg-white p-8 shadow"
       >
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Nutre.AI — Painel</h1>
-          <p className="text-sm text-gray-500">Acesso do nutricionista</p>
+          <h1 className="text-xl font-bold text-[var(--color-ink)]">Nutre.AI — Painel</h1>
+          <p className="text-sm text-[var(--color-ink-soft)]">Acesso do nutricionista</p>
         </div>
         <input
           type="password"
@@ -44,13 +44,13 @@ export default function LoginAdmin() {
           onChange={(e) => setSenha(e.target.value)}
           placeholder="Senha"
           autoFocus
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-emerald-600"
+          className="w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
         />
         {erro && <p className="text-sm text-red-600">{erro}</p>}
         <button
           type="submit"
           disabled={carregando || !senha}
-          className="w-full rounded-lg bg-emerald-700 py-2 font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+          className="w-full rounded-sm bg-[var(--color-brand)] py-2 font-medium text-white hover:bg-[var(--color-brand-strong)] disabled:opacity-50"
         >
           {carregando ? "Entrando…" : "Entrar"}
         </button>

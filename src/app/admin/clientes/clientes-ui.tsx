@@ -17,9 +17,9 @@ interface Linha {
 }
 
 const corStatus: Record<string, string> = {
-  ativo: "bg-emerald-100 text-emerald-800",
+  ativo: "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
   pausado: "bg-amber-100 text-amber-800",
-  perdido: "bg-gray-200 text-gray-600",
+  perdido: "bg-gray-200 text-[var(--color-ink-soft)]",
 };
 
 export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
@@ -85,82 +85,82 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-900">Clientes ({linhas.length})</h1>
+        <h1 className="text-lg font-bold text-[var(--color-ink)]">Clientes ({linhas.length})</h1>
         <button
           onClick={() => {
             setCriando(!criando);
             setLinkNovo(null);
           }}
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+          className="rounded-sm bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-brand-strong)]"
         >
           {criando ? "Fechar" : "+ Novo cliente"}
         </button>
       </div>
 
       {criando && (
-        <form onSubmit={criar} className="space-y-4 rounded-xl bg-white p-5 shadow-sm">
+        <form onSubmit={criar} className="space-y-4 rounded-sm bg-white p-5 shadow-sm">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Dados do paciente</h2>
-            <p className="text-xs text-gray-500">* obrigatórios. Os demais ajudam na avaliação e no encaixe de custo dos alimentos.</p>
+            <h2 className="text-sm font-semibold text-[var(--color-ink)]">Dados do paciente</h2>
+            <p className="text-xs text-[var(--color-ink-soft)]">* obrigatórios. Os demais ajudam na avaliação e no encaixe de custo dos alimentos.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Nome completo *
               <input value={form.nome} onChange={set("nome")} placeholder="Ex.: Maria Silva"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               E-mail *
               <input value={form.email} onChange={set("email")} type="email" placeholder="maria@email.com"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Telefone
               <input value={form.telefone} onChange={set("telefone")} placeholder="(19) 90000-0000"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Idade
               <input value={form.idade} onChange={set("idade")} type="number" min={0} placeholder="Ex.: 32"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Cidade
               <input value={form.cidade} onChange={set("cidade")} placeholder="Ex.: Piracicaba/SP"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Ocupação (trabalho)
               <input value={form.ocupacao} onChange={set("ocupacao")} placeholder="Ex.: professora"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Renda média mensal
               <input value={form.rendaMensal} onChange={set("rendaMensal")} placeholder="Ex.: R$ 3.000 (encaixe de custo)"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
-            <label className="text-xs font-medium text-gray-600">
+            <label className="text-xs font-medium text-[var(--color-ink-soft)]">
               Senha do painel do paciente (opcional)
               <input value={form.senha} onChange={set("senha")} type="text" placeholder="deixe vazio p/ acesso só por link"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-emerald-600" />
+                className="mt-1 w-full rounded-sm border border-[var(--color-line-strong)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-brand)]" />
             </label>
           </div>
           {erro && <p className="text-sm text-red-600">{erro}</p>}
           {linkNovo && (
-            <div className="space-y-2 rounded-lg bg-emerald-50 p-3 text-sm">
+            <div className="space-y-2 rounded-sm bg-[var(--color-brand-soft)] p-3 text-sm">
               <div className="flex items-center gap-2">
-                <span className="w-16 shrink-0 text-xs text-emerald-800">Painel:</span>
-                <span className="truncate font-mono text-emerald-900">{linkNovo.painel}</span>
+                <span className="w-16 shrink-0 text-xs text-[var(--color-brand)]">Painel:</span>
+                <span className="truncate font-mono text-[var(--color-brand-strong)]">{linkNovo.painel}</span>
                 <button type="button" onClick={() => copiar(linkNovo.painel, "painel")}
-                  className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 text-xs text-white">
+                  className="ml-auto shrink-0 rounded bg-[var(--color-brand)] px-2 py-1 text-xs text-white">
                   {copiado === "painel" ? "Copiado!" : "Copiar"}
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-16 shrink-0 text-xs text-emerald-800">Chat:</span>
-                <span className="truncate font-mono text-emerald-900">{linkNovo.link}</span>
+                <span className="w-16 shrink-0 text-xs text-[var(--color-brand)]">Chat:</span>
+                <span className="truncate font-mono text-[var(--color-brand-strong)]">{linkNovo.link}</span>
                 <button type="button" onClick={() => copiar(linkNovo.link, "chat")}
-                  className="ml-auto shrink-0 rounded bg-emerald-700 px-2 py-1 text-xs text-white">
+                  className="ml-auto shrink-0 rounded bg-[var(--color-brand)] px-2 py-1 text-xs text-white">
                   {copiado === "chat" ? "Copiado!" : "Copiar"}
                 </button>
               </div>
@@ -169,17 +169,17 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
           <button
             type="submit"
             disabled={ocupado || !form.nome.trim() || !form.email.trim()}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-sm bg-[var(--color-ink)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
             {ocupado ? "Criando…" : "Criar cliente e gerar acesso"}
           </button>
         </form>
       )}
 
-      <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-sm bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
+            <tr className="border-b border-[var(--color-line)] text-left text-xs uppercase tracking-wide text-[var(--color-ink-soft)]">
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Progressão</th>
@@ -189,10 +189,10 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
           </thead>
           <tbody>
             {linhas.map((l) => (
-              <tr key={l.id} className="border-b border-gray-100 last:border-0">
+              <tr key={l.id} className="border-b border-[var(--color-line)] last:border-0">
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900">{l.nome}</div>
-                  <div className="text-xs text-gray-500">{l.email}</div>
+                  <div className="font-medium text-[var(--color-ink)]">{l.nome}</div>
+                  <div className="text-xs text-[var(--color-ink-soft)]">{l.email}</div>
                   {l.flags.length > 0 && (
                     <span className="mt-0.5 inline-block rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
                       ⚠ {l.flags.join(" · ")}
@@ -201,22 +201,22 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${corStatus[l.status] ?? "bg-gray-100"}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${corStatus[l.status] ?? "bg-[var(--background)]"}`}
                   >
                     {l.status}
                   </span>
                   {!l.lgpd && (
-                    <div className="mt-1 text-[10px] text-gray-400">sem consentimento</div>
+                    <div className="mt-1 text-[10px] text-[var(--color-ink-soft)]">sem consentimento</div>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   {l.indice === null ? (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-[var(--color-ink-soft)]">—</span>
                   ) : (
                     <span
                       className={`font-semibold ${
                         l.indice >= 7
-                          ? "text-emerald-700"
+                          ? "text-[var(--color-brand)]"
                           : l.indice >= 4
                             ? "text-amber-600"
                             : "text-red-600"
@@ -231,7 +231,7 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-gray-600">
+                <td className="px-4 py-3 text-[var(--color-ink-soft)]">
                   {l.ultimoContato}
                   {l.diasSemContato !== null && l.diasSemContato >= 7 && (
                     <div className="text-[10px] font-semibold text-red-600">
@@ -243,7 +243,7 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => copiar(l.link, l.id)}
-                      className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:border-emerald-600 hover:text-emerald-700"
+                      className="rounded border border-[var(--color-line-strong)] px-2 py-1 text-xs text-[var(--color-ink-soft)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
                     >
                       {copiado === l.id ? "Copiado!" : "Copiar link"}
                     </button>
@@ -260,7 +260,7 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
             ))}
             {linhas.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-ink-soft)]">
                   Nenhum cliente ainda — crie o primeiro. 🌱
                 </td>
               </tr>
