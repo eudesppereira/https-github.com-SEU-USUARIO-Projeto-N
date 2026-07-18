@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
   },
   linhaItemPar: { backgroundColor: "#fafbfc" },
   colAlimento: { flex: 2, fontSize: 9.5, color: CHARCOAL },
-  colMedida: { flex: 1.6, textAlign: "right", fontSize: 8.5, color: "#8a8f94" },
+  // medida caseira: coluna de igual peso (charcoal, à esquerda) — contraste AA
+  colMedida: { flex: 1.5, fontSize: 9, color: CHARCOAL, paddingRight: 6 },
   colGramas: {
     fontSize: 8.5,
     fontWeight: 700,
@@ -333,8 +334,8 @@ function DocumentoDieta({ clienteNome, ciclo, dataLiberacao, conteudo }: DadosPd
           )}
 
           {dieta.refeicoes.length > 0 ? (
-            <View break>
-              <Text style={[styles.tituloSecao, { marginTop: 0 }]}>Plano alimentar</Text>
+            <View>
+              <Text style={styles.tituloSecao}>Plano alimentar</Text>
               {dieta.refeicoes.map((r, i) => (
                 <View key={`${r.titulo}-${i}`} style={styles.refeicao} wrap={false}>
                   <View style={styles.refeicaoTitulo}>
