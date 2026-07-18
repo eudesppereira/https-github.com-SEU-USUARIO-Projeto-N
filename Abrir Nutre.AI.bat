@@ -32,7 +32,12 @@ exit /b 1
 
 :abrir
 echo Abrindo o Nutre.AI no navegador...
+REM Painel do nutricionista (fila tem Ana gestante + Celia idosa pendentes)
 start "" "http://localhost:3000/admin"
-start "" "http://localhost:3000/paciente/demo-joao"
-start "" "http://localhost:3000/c/demo-joao"
+REM Painel do cliente (dashboard com evolucao)
+start "" "http://localhost:3000/paciente/demo-marcos"
+REM Chat / conversa (plano liberado)
+start "" "http://localhost:3000/c/demo-marcos"
+REM Chat da idosa (energia por EER da DRI, dieta em revisao)
+start "" "http://localhost:3000/c/demo-celia"
 exit /b 0

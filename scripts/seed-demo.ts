@@ -160,6 +160,75 @@ Subtotal: 347 kcal | P 18g C 44g G 17g
 
 Este plano tem caráter de informação e orientação nutricional. Para avaliação completa e individualizada, agende consulta presencial com o nutricionista Eudes Pereira — CRN 52959.`;
 
+const RESUMO_CELIA = `DADOS-CHAVE
+Célia Demo, 68 anos, feminino, 63 kg, 160 cm — IMC 24,6 (eutrofia)
+Objetivo: manutenção | Fator de atividade: 1,375 (leve)
+
+CÁLCULOS DO SISTEMA — ENERGIA POR EER (DRI), não Mifflin GET
+Paciente idosa (>=60): gasto energético estimado pela equação EER da DRI (2023).
+TMB (Mifflin, referência/piso): 1129 kcal
+EER (DRI): 1920 kcal  ← usado como base
+Meta: 1920 kcal (manutenção) | Macros: P 76g · C 260g · G 64g | Água: 2,2 L/dia
+
+METAS DE MICRONUTRIENTES (DRI — estágio f5170, Mulher 51-70)
+Vitamina D 15 mcg (RDA, UL 100) · Cálcio 1200 mg (RDA) · Vitamina B12 2,4 mcg (RDA)
+Ferro 8 mg (RDA, UL 45) · Fibra 22 g (AI) · Vitamina C 75 mg (RDA, UL 2000)
+Priorizar atingir a meta (RDA/AI) sem ultrapassar o UL.
+
+CONDUTA
+Plano de manutenção com fracionamento e ênfase em cálcio, vitamina D, B12 e
+fibra (faixa idosa). Energia pela EER conforme política; validar com o
+nutricionista antes da liberação.`;
+
+const DIETA_CELIA = `*PLANO ALIMENTAR PERSONALIZADO*
+
+Paciente: Célia Demo | Data: ${new Date().toLocaleDateString("pt-BR")}
+
+Elaborado por: Nutricionista Eudes Pereira — CRN 52959
+
+*PERFIL METABÓLICO*
+
+TMB (referência): 1129 kcal
+
+Energia (EER — DRI, paciente idosa): 1920 kcal
+
+Meta Calórica: 1920 kcal (manutenção)
+
+*Macros diários:*
+
+Proteínas: 76g
+
+Carboidratos: 260g
+
+Gorduras: 64g
+
+Água: 2,2 L/dia
+
+*CARDÁPIO*
+
+[PROPOSTA AUTOMÁTICA — energia pela EER da DRI (idosa). Validar micronutrientes
+da faixa (cálcio, vitamina D, B12, fibra) antes de liberar.]
+
+*Café da manhã — 7h30*
+- Pão integral — 2 fatias · Queijo minas — 2 fatias · Mamão — 1 fatia
+Subtotal: 350 kcal
+
+*Almoço — 12h*
+- Arroz — 100g, feijão — 80g, peixe assado — 130g, brócolis e couve
+Subtotal: 600 kcal
+
+*Lanche — 16h*
+- Iogurte natural + aveia 20g + banana
+Subtotal: 300 kcal
+
+*Jantar — 19h30*
+- Sopa de legumes com frango desfiado + torrada integral
+Subtotal: 400 kcal
+
+*ACOMPANHAMENTO*: check-in na semana 2 + nova dieta ajustada todo mês
+
+Este plano tem caráter de informação e orientação nutricional. Para avaliação completa e individualizada, agende consulta presencial com o nutricionista Eudes Pereira — CRN 52959.`;
+
 async function main() {
   // limpa demos anteriores
   await prisma.cliente.deleteMany({ where: { email: { endsWith: "@demo.nutre" } } });
@@ -333,12 +402,87 @@ async function main() {
     },
   });
 
+  // ---------- 4. Célia: IDOSA (68a) — energia por EER da DRI, dieta PENDENTE ----------
+  // Demonstra a política nova: adulto usa Mifflin; idoso/criança usam a EER (DRI).
+  const celia = await prisma.cliente.create({
+    data: {
+      nome: "Célia Demo",
+      email: "celia@demo.nutre",
+      telefone: "(19) 99999-0004",
+      token: "demo-celia",
+      idade: 68,
+      cidade: "Campinas",
+      consentimentoLgpd: true,
+      consentimentoLgpdEm: new Date(Date.now() - 1 * 86400000),
+    },
+  });
+  const casoCelia = await prisma.caso.create({
+    data: {
+      clienteId: celia.id,
+      memoria: JSON.stringify({
+        anamnese: {
+          nome: "Célia Demo",
+          idade: 68,
+          sexo: "feminino",
+          pesoKg: 63,
+          alturaCm: 160,
+          objetivo: "manutencao",
+          fatorAtividade: 1.375,
+        },
+        medidasBaseline: {},
+        pesoBaselineKg: 63,
+        flags: [],
+        // Energia via EER (DRI), não Mifflin GET — get == eerKcal.
+        perfilMetabolico: {
+          imc: 24.6,
+          classificacaoImc: "eutrofia",
+          tmb: 1129,
+          get: 1920,
+          metaCalorica: 1920,
+          macros: { proteinaG: 76, carboidratoG: 260, gorduraG: 64 },
+          aguaLitros: 2.2,
+          mmeKg: null,
+          percentualGorduraEstimado: null,
+          proteinaGPorKgBase: 1.2,
+          abaixoDoPisoCalorico: false,
+          metodoEnergia: "eer_dri",
+          eerKcal: 1920,
+        },
+        metaCalorica: 1920,
+        macros: { proteinaG: 76, carboidratoG: 260, gorduraG: 64 },
+        ultimoPesoKg: 63,
+        ultimoRegistroEm: new Date().toISOString(),
+      }),
+    },
+  });
+  await prisma.dieta.create({
+    data: {
+      casoId: casoCelia.id,
+      ciclo: 1,
+      conteudo: DIETA_CELIA,
+      resumoTecnico: RESUMO_CELIA,
+      status: "pendente_revisao",
+    },
+  });
+  const msgsCelia: [string, string][] = [
+    ["assistant", "Olá, Célia! 👋 Sou o Nutre.AI, assistente do nutricionista Eudes Pereira (CRN 52959). Vou coletar alguns dados de saúde para montar seu plano, com todo o cuidado. Tudo é confidencial e tratado conforme a LGPD. Podemos começar? (sim/não)"],
+    ["user", "Sim, pode começar."],
+    ["assistant", "Que ótimo! 💚 Segui com a entrevista completa... (anamnese aconteceu aqui)"],
+    ["user", "Confirmo, está tudo certo!"],
+    ["assistant", "Prontinho, Célia! Seu plano está em revisão com o nutricionista Eudes Pereira (CRN 52959). Assim que ele liberar, você recebe aqui. 💛"],
+  ];
+  for (const [role, conteudo] of msgsCelia) {
+    await prisma.mensagem.create({ data: { clienteId: celia.id, role, conteudo } });
+  }
+
   console.log("Dados de demonstração criados!\n");
   console.log("LINKS:");
   console.log(`  Painel admin:            ${BASE}/admin  (senha do .env: ADMIN_PASSWORD)`);
   console.log(`  Chat Marcos (liberado):  ${BASE}/c/demo-marcos`);
   console.log(`  Chat Ana (em revisão):   ${BASE}/c/demo-ana`);
   console.log(`  Chat João (novo, zero):  ${BASE}/c/demo-joao`);
+  console.log(`  Chat Célia (idosa, EER): ${BASE}/c/demo-celia`);
+  console.log(`  Painel Marcos (cliente): ${BASE}/paciente/demo-marcos`);
 }
 
 main()
