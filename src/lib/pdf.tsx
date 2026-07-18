@@ -117,6 +117,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   refeicaoTituloTexto: { fontSize: 10, fontWeight: 700, color: "#ffffff" },
+  // cabeçalho das colunas do cardápio (Alimento | Medida caseira | Quantidade)
+  itemCabecalho: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    backgroundColor: "#eef2f5",
+  },
+  itemCabecalhoTexto: {
+    fontSize: 7,
+    fontWeight: 700,
+    color: "#6b7075",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  colGramasCabecalho: { minWidth: 34, marginLeft: 8, textAlign: "center" },
   linhaItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -325,6 +341,13 @@ function DocumentoDieta({ clienteNome, ciclo, dataLiberacao, conteudo }: DadosPd
                     <Text style={styles.refeicaoNumero}>{i + 1}</Text>
                     <Text style={styles.refeicaoTituloTexto}>{r.titulo}</Text>
                   </View>
+                  {r.itens.length > 0 && (
+                    <View style={styles.itemCabecalho}>
+                      <Text style={[styles.colAlimento, styles.itemCabecalhoTexto]}>Alimento</Text>
+                      <Text style={[styles.colMedida, styles.itemCabecalhoTexto]}>Medida caseira</Text>
+                      <Text style={[styles.itemCabecalhoTexto, styles.colGramasCabecalho]}>Qtd</Text>
+                    </View>
+                  )}
                   {r.itens.map((item, j) => (
                     <LinhaItemCardapio key={j} item={item} index={j} />
                   ))}

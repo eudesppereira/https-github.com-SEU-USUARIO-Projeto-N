@@ -42,29 +42,29 @@ Gorduras: 56g (504 kcal | 25%)
 *CARDÁPIO*
 
 *Café da manhã — 7h*
-- Ovos mexidos — 3 unidades
-- Pão integral — 2 fatias
-- Banana — 1 média
-- Café sem açúcar
+- Ovos mexidos — 3 unidades (150g)
+- Pão integral — 2 fatias (50g)
+- Banana prata — 1 unidade média (100g)
+- Café sem açúcar — 1 xícara (200ml)
 Subtotal: 500 kcal | P 26g C 55g G 18g
 
 *Almoço — 12h*
-- Arroz branco — 120g
-- Feijão carioca — 100g
-- Frango grelhado — 150g
-- Salada de folhas com azeite — à vontade
+- Arroz branco cozido — 8 colheres de sopa (120g)
+- Feijão carioca — 1 concha média (100g)
+- Frango grelhado — 1 filé grande (150g)
+- Salada de folhas com azeite — 1 prato de sobremesa (100g)
 Subtotal: 700 kcal | P 55g C 75g G 18g
 
 *Lanche — 16h*
-- Iogurte natural — 1 pote
-- Aveia — 30g
-- Mamão — 1 fatia
+- Iogurte natural — 1 pote (170g)
+- Aveia em flocos — 3 colheres de sopa (30g)
+- Mamão papaia — 1 fatia média (150g)
 Subtotal: 300 kcal | P 15g C 45g G 6g
 
 *Jantar — 20h*
-- Batata-doce — 150g
-- Carne magra — 120g
-- Legumes refogados — 150g
+- Batata-doce cozida — 1 unidade média (150g)
+- Patinho grelhado — 1 bife médio (120g)
+- Legumes refogados — 1 pegador cheio (150g)
 Subtotal: 506 kcal | P 40g C 45g G 14g
 
 *SUBSTITUIÇÕES*
@@ -135,25 +135,31 @@ Gorduras: 55g (495 kcal | 28%)
 gestacionais, fracionamento e micronutrientes antes de liberar]
 
 *Café da manhã — 7h30*
-- Pão integral — 2 fatias
-- Queijo minas — 2 fatias
-- Mamão — 1 fatia
+- Pão integral — 2 fatias (50g)
+- Queijo minas — 2 fatias (60g)
+- Mamão papaia — 1 fatia média (150g)
 Subtotal: 350 kcal | P 15g C 50g G 10g
 
 *Lanche — 10h*
-- Iogurte natural + aveia 20g
+- Iogurte natural — 1 pote (170g)
+- Aveia em flocos — 2 colheres de sopa (20g)
 Subtotal: 200 kcal | P 10g C 25g G 6g
 
 *Almoço — 12h30*
-- Arroz — 100g, feijão — 80g, frango — 120g, couve refogada
+- Arroz branco cozido — 6 colheres de sopa (100g)
+- Feijão carioca — 1 concha pequena (80g)
+- Frango grelhado — 1 filé médio (120g)
+- Couve refogada — 2 colheres de sopa (60g)
 Subtotal: 550 kcal | P 35g C 65g G 14g
 
 *Lanche — 15h30*
-- Banana + castanhas (3 un)
+- Banana prata — 1 unidade média (100g)
+- Castanha-do-pará — 3 unidades (15g)
 Subtotal: 200 kcal | P 4g C 30g G 8g
 
 *Jantar — 19h30*
-- Sopa de legumes com carne desfiada + torrada integral
+- Sopa de legumes com carne desfiada — 1 prato fundo (350g)
+- Torrada integral — 2 unidades (24g)
 Subtotal: 347 kcal | P 18g C 44g G 17g
 
 *ACOMPANHAMENTO*: check-in na semana 2 + nova dieta ajustada todo mês
@@ -210,20 +216,28 @@ Gorduras: 64g
 da faixa (cálcio, vitamina D, B12, fibra) antes de liberar.]
 
 *Café da manhã — 7h30*
-- Pão integral — 2 fatias · Queijo minas — 2 fatias · Mamão — 1 fatia
-Subtotal: 350 kcal
+- Pão integral — 2 fatias (50g)
+- Queijo minas — 2 fatias (60g)
+- Mamão papaia — 1 fatia média (150g)
+Subtotal: 350 kcal | P 18g C 45g G 10g
 
 *Almoço — 12h*
-- Arroz — 100g, feijão — 80g, peixe assado — 130g, brócolis e couve
-Subtotal: 600 kcal
+- Arroz branco cozido — 6 colheres de sopa (100g)
+- Feijão carioca — 1 concha pequena (80g)
+- Peixe assado (tilápia) — 1 filé médio (130g)
+- Brócolis e couve refogados — 2 colheres de sopa (80g)
+Subtotal: 600 kcal | P 40g C 60g G 16g
 
 *Lanche — 16h*
-- Iogurte natural + aveia 20g + banana
-Subtotal: 300 kcal
+- Iogurte natural — 1 pote (170g)
+- Aveia em flocos — 2 colheres de sopa (20g)
+- Banana prata — 1 unidade média (100g)
+Subtotal: 300 kcal | P 12g C 48g G 6g
 
 *Jantar — 19h30*
-- Sopa de legumes com frango desfiado + torrada integral
-Subtotal: 400 kcal
+- Sopa de legumes com frango desfiado — 1 prato fundo (350g)
+- Torrada integral — 2 unidades (24g)
+Subtotal: 400 kcal | P 22g C 50g G 12g
 
 *ACOMPANHAMENTO*: check-in na semana 2 + nova dieta ajustada todo mês
 

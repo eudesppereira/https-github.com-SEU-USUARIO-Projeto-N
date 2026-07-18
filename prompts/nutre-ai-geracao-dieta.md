@@ -42,7 +42,7 @@ Subtotal: [kcal] | P [g] C [g] G [g]
 
 [repetir por refeição]
 
-**Formato obrigatório de cada item do cardápio**: alimento, depois a medida caseira, depois o peso em gramas entre parênteses — ex.: "Arroz branco cozido — 6 colheres de sopa (90g)", "Peito de frango grelhado — 1 filé médio (130g)", "Banana prata — 1 unidade média (100g)", "Azeite de oliva — 1 colher de sopa (13g)". Use medidas que a pessoa reconhece no dia a dia (unidade, fatia, colher de sopa/chá, xícara, escumadeira, concha, punhado) — nunca deixe um item só em gramas e nunca só em medida caseira sem o peso. Ao final de cada refeição, sempre feche com a linha de Subtotal com o total calórico e macros daquela refeição.
+**Formato obrigatório de cada item do cardápio (DUAS COLUNAS por alimento — medida caseira + gramas)**: escreva SEMPRE `Alimento — [medida caseira] ([X]g)`. As duas colunas são obrigatórias em TODO item: a medida caseira (coluna 1 no PDF) e o peso em gramas entre parênteses (coluna 2 no PDF). Exemplos: "Arroz branco cozido — 6 colheres de sopa (90g)", "Peito de frango grelhado — 1 filé médio (130g)", "Banana prata — 1 unidade média (100g)", "Azeite de oliva — 1 colher de sopa (13g)". Líquidos podem usar ml: "Café sem açúcar — 1 xícara (200ml)". Use medidas que a pessoa reconhece no dia a dia (unidade, fatia, colher de sopa/chá, xícara, escumadeira, concha, pegador, punhado) — NUNCA deixe um item só em gramas e NUNCA só em medida caseira sem o peso. Ao final de cada refeição, sempre feche com a linha de Subtotal com o total calórico e macros daquela refeição.
 
 *SUBSTITUIÇÕES*
 

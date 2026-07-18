@@ -32,6 +32,8 @@ exit /b 1
 
 :abrir
 echo Abrindo o Nutre.AI no navegador...
+REM Landing de captacao de cliente (com planos e valores)
+start "" "http://localhost:3000/"
 REM Painel do nutricionista (fila tem Ana gestante + Celia idosa pendentes)
 start "" "http://localhost:3000/admin"
 REM Painel do cliente (dashboard com evolucao)
