@@ -22,6 +22,7 @@ import {
   type MemoriaCaso,
 } from "./caso";
 import { gerarDietaParaRevisao } from "./dieta";
+import { resolverEnergia } from "./dri/perfil-dri";
 
 export async function processarEventos(
   eventos: EventoNutre[],
@@ -140,16 +141,20 @@ async function tratarAnamneseCompleta(
   const objetivo = normalizarObjetivo(payload.objetivo);
   const fatorAtividade = normalizarFator(payload.fatorAtividade);
 
-  const perfil = calcularPerfilMetabolico({
-    sexo,
-    idade,
-    pesoKg,
-    alturaCm,
-    fatorAtividade,
-    objetivo,
-  });
+  // Fonte de energia conforme a política: adulto mantém o Mifflin GET
+  // (padrão-ouro); idoso e criança/adolescente usam a EER da DRI.
+  const energia = resolverEnergia({ sexo, idadeAnos: idade, pesoKg, alturaCm, fatorAtividade });
 
-  const flags = unirFlags(payload.flags, flagsDeterministicas(payload));
+  const perfil = calcularPerfilMetabolico(
+    { sexo, idade, pesoKg, alturaCm, fatorAtividade, objetivo },
+    energia.metodo === "eer_dri" && energia.eerKcal != null
+      ? { getOverride: energia.eerKcal, metodoEnergia: "eer_dri", avisoEnergia: energia.aviso }
+      : { metodoEnergia: "mifflin_get", avisoEnergia: energia.aviso }
+  );
+
+  // aviso de energia (ex.: deposição de crescimento) vira flag de revisão
+  const flagsBase = unirFlags(payload.flags, flagsDeterministicas(payload));
+  const flags = energia.aviso ? unirFlags(flagsBase, [energia.aviso]) : flagsBase;
 
   const memoria: MemoriaCaso = {
     anamnese: payload,

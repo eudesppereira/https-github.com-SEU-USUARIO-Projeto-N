@@ -11,6 +11,8 @@ import { promptBase } from "./prompt";
 import { lerMemoria, type MemoriaCaso } from "./caso";
 import { validarDieta } from "./validador";
 import type { PerfilMetabolico } from "./calculos";
+import { montarBlocoDri } from "./dri/perfil-dri";
+import type { SexoEntrada } from "./dri/dri-data";
 
 const MAX_REGENERACOES = 2;
 
@@ -33,8 +35,26 @@ interface ParametrosGeracao {
   instrucoesExtra?: string;
 }
 
+// Bloco de metas de micronutrientes/fibra (DRI) a partir da anamnese.
+// Falha aqui nunca derruba a geração — apenas omite o bloco.
+function blocoDriDoCaso(memoria: MemoriaCaso): string {
+  try {
+    const a = (memoria.anamnese ?? {}) as Record<string, unknown>;
+    const idade = Number(a.idade);
+    if (!Number.isFinite(idade)) return "";
+    const sexo: SexoEntrada = a.sexo === "feminino" ? "feminino" : "masculino";
+    const gestante = a.gestante === true || a.gestacao === true;
+    const lactante = a.lactante === true || a.amamentando === true;
+    return montarBlocoDri({ sexo, idadeAnos: idade, gestante, lactante });
+  } catch (e) {
+    console.error("[nutre] falha ao montar bloco DRI:", e);
+    return "";
+  }
+}
+
 function montarContextoCaso(memoria: MemoriaCaso, cliente: Cliente, ciclo: number): string {
   const perfil = memoria.perfilMetabolico;
+  const blocoDri = blocoDriDoCaso(memoria);
   return [
     "## DADOS DO CASO (fonte da verdade — use exatamente estes números)",
     "",
@@ -61,7 +81,11 @@ function montarContextoCaso(memoria: MemoriaCaso, cliente: Cliente, ciclo: numbe
     "```json",
     JSON.stringify(perfil ?? {}, null, 2),
     "```",
+    perfil?.metodoEnergia === "eer_dri"
+      ? "> Energia obtida pela EER da DRI (paciente idoso ou criança/adolescente), não pelo GET Mifflin."
+      : "",
     "",
+    blocoDri,
     memoria.flags && memoria.flags.length > 0
       ? `### ⚠ FLAGS DE REVISÃO ATIVOS\n${memoria.flags.map((f) => `- ${f}`).join("\n")}\nDestaque-os no topo do resumo técnico.`
       : "Nenhum flag de revisão ativo.",

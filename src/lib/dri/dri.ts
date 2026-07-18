@@ -9,6 +9,7 @@
 import {
   carregarDri,
   type BancoDri,
+  type CoefEer,
   type SexoEntrada,
   type ValorNutriente,
 } from "./dri-data";
@@ -302,4 +303,61 @@ export function calcularEER(
     c.intercept + c.age * idadeAnos + c.height * alturaCm + c.weight * pesoKg;
 
   return { aplicavel: true, eerKcal: Math.round(eer) };
+}
+
+/**
+ * Calcula a EER de criança/adolescente (3-18 anos) usando
+ * energy_eer.criancas_adolescentes (equações 2023 por sexo/PAL).
+ *
+ * ATENÇÃO CLÍNICA: o próprio banco sinaliza que a energia de DEPOSIÇÃO
+ * (crescimento) é tratada à parte (Tabela S-2) e NÃO está embutida como número
+ * usável no JSON. O valor retornado é a estimativa da equação e vem SEMPRE com
+ * um aviso para o nutricionista confirmar/ajustar a deposição. Casos <18 já
+ * entram como revisão obrigatória.
+ *
+ * Fora de 3-18 retorna aviso sem valor.
+ *
+ * @throws se o PAL for inválido.
+ */
+export function calcularEerCrianca(
+  sexo: SexoEntrada,
+  idadeAnos: number,
+  pesoKg: number,
+  alturaCm: number,
+  pal: Pal,
+): ResultadoEer {
+  if (!PALS_VALIDOS.has(pal)) {
+    throw new Error(
+      `PAL inválido: ${pal}. Use inactive | low_active | active | very_active.`,
+    );
+  }
+
+  if (idadeAnos < 3 || idadeAnos > 18) {
+    return {
+      aplicavel: false,
+      eerKcal: null,
+      aviso: `EER de criança/adolescente do banco cobre apenas 3-18 anos; idade ${idadeAnos} fora da faixa — defina a energia manualmente.`,
+    };
+  }
+
+  const banco: BancoDri = carregarDri();
+  const cria = banco.energy_eer.criancas_adolescentes as
+    | Record<string, Record<string, CoefEer>>
+    | undefined;
+  const grupo =
+    normalizarSexo(sexo) === "masculino" ? cria?.menino_3_18 : cria?.menina_3_18;
+  const c = grupo?.[pal];
+  if (!c) {
+    throw new Error(`Coeficientes de EER infantil ausentes para PAL ${pal}`);
+  }
+
+  const eer =
+    c.intercept + c.age * idadeAnos + c.height * alturaCm + c.weight * pesoKg;
+
+  return {
+    aplicavel: true,
+    eerKcal: Math.round(eer),
+    aviso:
+      "EER infantil (3-18): confirme/adicione a energia de deposição de crescimento (Tabela S-2 do relatório 2023) — não incluída no cálculo.",
+  };
 }

@@ -36,6 +36,18 @@ export interface PerfilMetabolico {
   percentualGorduraEstimado: number | null;
   proteinaGPorKgBase: number; // g/kg usado (peso atual ou MME)
   abaixoDoPisoCalorico: boolean; // <1200 kcal mulheres / <1500 homens — exige revisão explícita
+  metodoEnergia: "mifflin_get" | "eer_dri"; // como o gasto energético base foi obtido
+  eerKcal: number | null; // EER (DRI) quando usado no lugar do GET (idoso/criança)
+  avisoEnergia?: string; // ressalva do método de energia (ex.: deposição de crescimento)
+}
+
+// Ajuste opcional da fonte de energia. Sem opções, mantém o padrão-ouro
+// (GET = TMB × fator de atividade, Mifflin-St Jeor). Idoso/criança usam a EER
+// (DRI) — a orquestração passa getOverride com o valor da EER.
+export interface OpcoesEnergia {
+  getOverride?: number; // substitui o GET (kcal/dia)
+  metodoEnergia?: "mifflin_get" | "eer_dri";
+  avisoEnergia?: string;
 }
 
 // IMC = peso / (altura em m)^2
@@ -195,10 +207,15 @@ export function calcularAguaLitros(pesoKg: number, horasTreinoIntenso = 0): numb
   return Math.round(total * 10) / 10;
 }
 
-export function calcularPerfilMetabolico(perfil: PerfilCalculo): PerfilMetabolico {
+export function calcularPerfilMetabolico(
+  perfil: PerfilCalculo,
+  opcoes?: OpcoesEnergia
+): PerfilMetabolico {
   const imc = calcularImc(perfil.pesoKg, perfil.alturaCm);
   const tmb = calcularTmb(perfil.sexo, perfil.pesoKg, perfil.alturaCm, perfil.idade);
-  const get = calcularGet(tmb, perfil.fatorAtividade);
+  // GET padrão (Mifflin) — substituído pela EER (DRI) quando a orquestração
+  // passa getOverride (idoso/criança). A TMB continua sendo o piso da meta.
+  const get = opcoes?.getOverride ?? calcularGet(tmb, perfil.fatorAtividade);
   const metaCalorica = calcularMetaCalorica(perfil.objetivo, get, tmb);
   const { macros, proteinaInfo } = calcularMacros(
     perfil.objetivo,
@@ -220,6 +237,9 @@ export function calcularPerfilMetabolico(perfil: PerfilCalculo): PerfilMetabolic
     percentualGorduraEstimado: proteinaInfo.percentualG,
     proteinaGPorKgBase: proteinaInfo.gPorKg,
     abaixoDoPisoCalorico: metaCalorica < piso,
+    metodoEnergia: opcoes?.metodoEnergia ?? "mifflin_get",
+    eerKcal: opcoes?.getOverride != null ? Math.round(opcoes.getOverride) : null,
+    avisoEnergia: opcoes?.avisoEnergia,
   };
 }
 
