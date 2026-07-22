@@ -39,15 +39,18 @@ export function PlanoView({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-center overflow-y-auto bg-[var(--color-tech-navy-strong)]/60 p-0 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-tech-navy-strong)]/60 p-0 sm:p-6"
       onClick={onClose}
     >
+      {/* o CARD é o container de scroll: overflow-hidden recorta as bordas
+          arredondadas e só o miolo rola — cabeçalho e rodapé ficam fixos sem
+          sticky, então nada vaza por fora do card. */}
       <div
-        className="relative flex min-h-full w-full max-w-2xl flex-col bg-[var(--background)] shadow-[var(--shadow-lifted)] sm:min-h-0 sm:rounded-2xl"
+        className="relative flex h-full max-h-full w-full max-w-2xl flex-col overflow-hidden bg-[var(--background)] shadow-[var(--shadow-lifted)] sm:h-auto sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* cabeçalho verde fixo */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-2xl bg-[var(--color-brand-strong)] px-5 py-4 text-white">
+        <div className="flex shrink-0 items-center justify-between gap-3 bg-[var(--color-brand-strong)] px-5 py-4 text-white">
           <div>
             <p className="text-[11px] uppercase tracking-wide text-[var(--color-tech-cyan)]">
               Plano alimentar liberado
@@ -67,7 +70,8 @@ export function PlanoView({
           </button>
         </div>
 
-        <div className="flex-1 space-y-5 px-5 py-5">
+        {/* único elemento que rola */}
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
           {/* macros / perfil metabólico */}
           {d.perfil.length > 0 && (
             <section>
@@ -188,7 +192,7 @@ export function PlanoView({
         </div>
 
         {/* rodapé com ações */}
-        <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-3 sm:rounded-b-2xl">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-3">
           <button
             onClick={onClose}
             className="rounded-full px-4 py-2 text-sm font-medium text-[var(--color-ink-soft)] transition hover:bg-black/5"
