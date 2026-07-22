@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Surface } from "@/components/ui/Surface";
 import { Button } from "@/components/ui/Button";
+import { parsearDieta } from "@/lib/dieta-parse";
 
 interface Props {
   dieta: {
@@ -38,8 +39,10 @@ export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resu
   const [devolvendo, setDevolvendo] = useState(false);
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [editando, setEditando] = useState(false);
   const router = useRouter();
   const pendente = dieta.status === "pendente_revisao";
+  const dietaLegivel = parsearDieta(conteudo);
 
   async function agir(acao: "liberar" | "devolver") {
     setErro(null);
@@ -83,7 +86,7 @@ export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resu
             rel="noopener noreferrer"
             className="rounded-full border border-[var(--color-tech-cyan)] px-3 py-1.5 text-xs font-semibold text-[var(--color-tech-cyan-strong)] transition hover:bg-[var(--color-tech-cyan-soft)]"
           >
-            📄 Ver PDF
+            Ver PDF
           </a>
         )}
       </div>
@@ -181,16 +184,31 @@ export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resu
       </Surface>
 
       <Surface className="p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-soft)]">
-          Dieta proposta {pendente && "(editável)"}
-        </h2>
-        <textarea
-          value={conteudo}
-          onChange={(e) => setConteudo(e.target.value)}
-          disabled={!pendente}
-          rows={24}
-          className="w-full rounded-xl border border-[var(--color-line-strong)] p-3 font-mono text-sm outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)] disabled:bg-[var(--color-brand-soft)]"
-        />
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-soft)]">
+            Dieta proposta
+          </h2>
+          {pendente && (
+            <button
+              type="button"
+              onClick={() => setEditando((v) => !v)}
+              className="rounded-full border border-[var(--color-line-strong)] px-3 py-1 text-xs font-semibold text-[var(--color-brand-strong)] transition hover:bg-[var(--color-brand-soft)]"
+            >
+              {editando ? "Ver formatado" : "Editar texto"}
+            </button>
+          )}
+        </div>
+
+        {editando ? (
+          <textarea
+            value={conteudo}
+            onChange={(e) => setConteudo(e.target.value)}
+            rows={24}
+            className="w-full rounded-xl border border-[var(--color-line-strong)] p-3 font-mono text-sm outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
+          />
+        ) : (
+          <DietaLegivel dieta={dietaLegivel} />
+        )}
         <label className="mt-3 block text-sm text-[var(--color-ink-soft)]">
           Notas do nutricionista (internas)
           <textarea
@@ -214,7 +232,7 @@ export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resu
             disabled={ocupado || !conteudo.trim()}
             className="flex-1 py-3"
           >
-            {ocupado ? "Processando…" : "✓ Liberar para o cliente"}
+            {ocupado ? "Processando…" : "Liberar para o cliente"}
           </Button>
           <Button
             variant="secondary"
@@ -266,5 +284,71 @@ export default function RevisaoDieta({ dieta, clienteNome, cadastro, flags, resu
         </div>
       )}
     </main>
+  );
+}
+
+// dieta em cards legíveis (macros + refeições em tabela) — em vez do paredão
+// monoespaçado. O botão "Editar texto" volta pra textarea bruta.
+function DietaLegivel({ dieta }: { dieta: ReturnType<typeof parsearDieta> }) {
+  if (dieta.perfil.length === 0 && dieta.refeicoes.length === 0) {
+    return (
+      <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-xl bg-[var(--color-brand-soft)] p-3 text-sm text-[var(--color-ink)]">
+        {dieta.bruto}
+      </pre>
+    );
+  }
+  return (
+    <div className="space-y-4">
+      {dieta.perfil.length > 0 && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {dieta.perfil.map(([k, v]) => (
+            <div key={k} className="rounded-xl border border-[var(--color-line)] p-2.5">
+              <div className="text-[11px] text-[var(--color-ink-soft)]">{k}</div>
+              <div className="text-sm font-semibold tabular-nums text-[var(--color-ink)]">{v}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {dieta.refeicoes.map((r) => (
+        <div key={r.titulo} className="overflow-hidden rounded-xl border border-[var(--color-line)]">
+          <div className="bg-[var(--color-brand-soft)] px-3 py-1.5 text-sm font-semibold text-[var(--color-brand-strong)]">
+            {r.titulo}
+          </div>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-[var(--color-line)] text-left text-[11px] uppercase tracking-wide text-[var(--color-ink-soft)]">
+                <th className="px-3 py-1 font-medium">Alimento</th>
+                <th className="px-2 py-1 font-medium">Medida caseira</th>
+                <th className="px-3 py-1 text-right font-medium">Qtd</th>
+              </tr>
+            </thead>
+            <tbody>
+              {r.itens.map((item, i) => (
+                <tr key={i} className="border-b border-[var(--color-line)] last:border-0">
+                  <td className="px-3 py-1.5 text-[var(--color-ink)]">{item.alimento}</td>
+                  <td className="px-2 py-1.5 text-[var(--color-ink-soft)]">{item.medidaCaseira ?? "—"}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums text-[var(--color-ink)]">{item.gramas ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {r.subtotal && (
+            <p className="border-t border-[var(--color-line)] px-3 py-1 text-right text-xs text-[var(--color-ink-soft)]">
+              Subtotal: {r.subtotal}
+            </p>
+          )}
+        </div>
+      ))}
+      {dieta.orientacoes && (
+        <p className="text-sm leading-relaxed text-[var(--color-ink)]">
+          <b>Orientações:</b> {dieta.orientacoes}
+        </p>
+      )}
+      {dieta.observacoesClinicas && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <b>Observações clínicas:</b> {dieta.observacoesClinicas}
+        </div>
+      )}
+    </div>
   );
 }

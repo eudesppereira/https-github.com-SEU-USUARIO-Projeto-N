@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PlanoView } from "@/components/PlanoView";
 
 interface Msg {
   id: string;
   role: "user" | "assistant";
   conteudo: string;
+}
+
+// mensagem que é uma dieta liberada (começa com o cabeçalho do plano) —
+// vira card "Abrir plano completo" em vez de paredão de texto.
+function ehDieta(conteudo: string): boolean {
+  return /\*?PLANO ALIMENTAR/i.test(conteudo);
 }
 
 // reduz a imagem no navegador antes de enviar (evita uploads gigantes)
@@ -52,15 +59,21 @@ function formatar(texto: string) {
 export default function Chat({
   token,
   mensagensIniciais,
+  dietaLiberadaId,
+  cicloLiberado,
 }: {
   token: string;
   mensagensIniciais: Msg[];
+  dietaLiberadaId: string | null;
+  cicloLiberado: number | null;
 }) {
   const [mensagens, setMensagens] = useState<Msg[]>(mensagensIniciais);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  // texto do plano aberto no painel (overlay). null = fechado.
+  const [planoTexto, setPlanoTexto] = useState<string | null>(null);
   const fimRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const iniciou = useRef(false);
@@ -199,7 +212,11 @@ export default function Chat({
         </div>
         <div className="flex-1">
           <div className="font-semibold leading-tight">Nutre.AI</div>
-          <div className="text-xs text-white/70">
+          <div className="flex items-center gap-1.5 text-xs text-white/70">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-tech-cyan)] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-tech-cyan)]" />
+            </span>
             Nutricionista Eudes Pereira · CRN 52959
           </div>
         </div>
@@ -211,23 +228,32 @@ export default function Chat({
         </a>
       </header>
 
-      <main className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
-        {mensagens.map((m) => (
-          <div
-            key={m.id}
-            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-2xl space-y-2 px-3 py-4">
+        {mensagens.map((m) =>
+          m.role === "assistant" && ehDieta(m.conteudo) ? (
+            <PlanoCard
+              key={m.id}
+              ciclo={cicloLiberado}
+              onAbrir={() => setPlanoTexto(m.conteudo)}
+            />
+          ) : (
             <div
-              className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3.5 py-2.5 text-[15px] leading-snug shadow-[var(--shadow-soft)] ${
-                m.role === "user"
-                  ? "rounded-br-md bg-[var(--color-brand-soft)] text-[var(--color-ink)]"
-                  : "rounded-bl-md border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)]"
-              }`}
+              key={m.id}
+              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {formatar(m.conteudo)}
+              <div
+                className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3.5 py-2.5 text-[15px] leading-snug shadow-[var(--shadow-soft)] ${
+                  m.role === "user"
+                    ? "rounded-br-md bg-[var(--color-brand-soft)] text-[var(--color-ink)]"
+                    : "rounded-bl-md border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)]"
+                }`}
+              >
+                {formatar(m.conteudo)}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        )}
         {enviando && (
           <div className="flex justify-start">
             <div className="rounded-lg rounded-bl-none border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3 shadow-sm">
@@ -253,6 +279,7 @@ export default function Chat({
           </div>
         )}
         <div ref={fimRef} />
+        </div>
       </main>
 
       <footer className="flex items-end gap-2 border-t border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2">
@@ -296,6 +323,48 @@ export default function Chat({
           </svg>
         </button>
       </footer>
+
+      {planoTexto && (
+        <PlanoView
+          texto={planoTexto}
+          ciclo={cicloLiberado}
+          pdfHref={
+            dietaLiberadaId ? `/api/paciente/${token}/dieta/${dietaLiberadaId}/pdf` : null
+          }
+          onClose={() => setPlanoTexto(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// card compacto que substitui o paredão de texto da dieta no chat
+function PlanoCard({ ciclo, onAbrir }: { ciclo: number | null; onAbrir: () => void }) {
+  return (
+    <div className="flex justify-start">
+      <div className="w-full max-w-[85%] rounded-xl border border-[var(--color-brand-soft)] bg-[var(--color-brand-soft)] p-4 shadow-[var(--shadow-soft)]">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-brand)] text-white">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+              <path d="M7 2h10a2 2 0 0 1 2 2v16l-7-3-7 3V4a2 2 0 0 1 2-2zm5 4a1 1 0 0 0-1 1v2H9a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2V7a1 1 0 0 0-1-1z" />
+            </svg>
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-[var(--color-brand-strong)]">
+              Plano liberado{ciclo ? ` · Ciclo ${ciclo}` : ""}
+            </p>
+            <p className="text-xs text-[var(--color-ink-soft)]">
+              Revisado por Eudes Pereira · CRN 52959
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onAbrir}
+          className="mt-3 w-full rounded-full bg-[var(--color-brand)] py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-strong)]"
+        >
+          Abrir plano completo
+        </button>
+      </div>
     </div>
   );
 }

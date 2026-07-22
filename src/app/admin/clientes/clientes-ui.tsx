@@ -23,6 +23,11 @@ const corStatus: Record<string, string> = {
   perdido: "bg-gray-200 text-[var(--color-ink-soft)]",
 };
 
+function iniciais(nome: string): string {
+  const p = nome.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+}
+
 export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
   const [criando, setCriando] = useState(false);
   const vazio = {
@@ -187,13 +192,20 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
             {linhas.map((l) => (
               <tr key={l.id} className="border-b border-[var(--color-line)] transition last:border-0 hover:bg-[var(--color-tech-cyan-soft)]/40">
                 <td className="px-4 py-3">
-                  <div className="font-medium text-[var(--color-ink)]">{l.nome}</div>
-                  <div className="text-xs text-[var(--color-ink-soft)]">{l.email}</div>
-                  {l.flags.length > 0 && (
-                    <span className="mt-0.5 inline-block rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
-                      ⚠ {l.flags.join(" · ")}
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-soft)] font-display text-xs font-bold text-[var(--color-brand-strong)]">
+                      {iniciais(l.nome)}
                     </span>
-                  )}
+                    <div>
+                      <div className="font-medium text-[var(--color-ink)]">{l.nome}</div>
+                      <div className="text-xs text-[var(--color-ink-soft)]">{l.email}</div>
+                      {l.flags.length > 0 && (
+                        <span className="mt-0.5 inline-block rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                          ⚠ {l.flags.join(" · ")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -257,7 +269,7 @@ export default function ClientesUI({ linhas }: { linhas: Linha[] }) {
             {linhas.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-ink-soft)]">
-                  Nenhum cliente ainda — crie o primeiro. 🌱
+                  Nenhum cliente ainda — crie o primeiro.
                 </td>
               </tr>
             )}

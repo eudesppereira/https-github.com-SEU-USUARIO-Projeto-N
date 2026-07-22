@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Surface } from "@/components/ui/Surface";
 import { Button } from "@/components/ui/Button";
+import { PlanoView } from "@/components/PlanoView";
 
 interface Checkin {
   id: string;
@@ -27,21 +28,33 @@ interface Props {
   planoStatus: "liberado" | "revisao" | "nenhum";
   dietaLiberadaId: string | null;
   cicloLiberado: number | null;
+  dietaConteudo: string | null;
   checkins: Checkin[];
   fotos: Foto[];
 }
 
-const MEDIDAS: { chave: string; rotulo: string }[] = [
-  { chave: "punho", rotulo: "Punho" },
-  { chave: "antebraco", rotulo: "Antebraço" },
-  { chave: "braco", rotulo: "Braço" },
-  { chave: "peitoral", rotulo: "Peitoral" },
-  { chave: "cintura", rotulo: "Cintura" },
-  { chave: "abdomen", rotulo: "Abdômen (umbigo)" },
-  { chave: "quadril", rotulo: "Quadril" },
-  { chave: "coxa", rotulo: "Coxa" },
-  { chave: "panturrilha", rotulo: "Panturrilha" },
-  { chave: "tornozelo", rotulo: "Tornozelo" },
+// medidas agrupadas em Tronco / Membros para o formulário recolhível
+const GRUPOS_MEDIDAS: { grupo: string; itens: { chave: string; rotulo: string }[] }[] = [
+  {
+    grupo: "Tronco",
+    itens: [
+      { chave: "peitoral", rotulo: "Peitoral" },
+      { chave: "cintura", rotulo: "Cintura" },
+      { chave: "abdomen", rotulo: "Abdômen (umbigo)" },
+      { chave: "quadril", rotulo: "Quadril" },
+    ],
+  },
+  {
+    grupo: "Membros",
+    itens: [
+      { chave: "punho", rotulo: "Punho" },
+      { chave: "antebraco", rotulo: "Antebraço" },
+      { chave: "braco", rotulo: "Braço" },
+      { chave: "coxa", rotulo: "Coxa" },
+      { chave: "panturrilha", rotulo: "Panturrilha" },
+      { chave: "tornozelo", rotulo: "Tornozelo" },
+    ],
+  },
 ];
 
 function fmtData(iso: string) {
@@ -85,6 +98,7 @@ export default function Dashboard({
   planoStatus,
   dietaLiberadaId,
   cicloLiberado,
+  dietaConteudo,
   checkins,
   fotos,
 }: Props) {
@@ -97,6 +111,8 @@ export default function Dashboard({
   const [enviandoFoto, setEnviandoFoto] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [zoom, setZoom] = useState<string | null>(null);
+  const [medidasAbertas, setMedidasAbertas] = useState(false);
+  const [planoAberto, setPlanoAberto] = useState(false);
 
   const primeiro = cliente.nome.split(" ")[0];
   const pesoAtual = checkins.length ? checkins[checkins.length - 1].peso : baseline.pesoKg;
@@ -125,7 +141,7 @@ export default function Dashboard({
         setPeso("");
         setMedidas({});
         setObs("");
-        setMsg("Registro salvo! 🎉");
+        setMsg("Registro salvo.");
         router.refresh();
       } else {
         setMsg((await r.json().catch(() => ({}))).erro ?? "erro ao salvar");
@@ -148,7 +164,7 @@ export default function Dashboard({
         body: JSON.stringify({ dados }),
       });
       if (r.ok) {
-        setMsg("Foto enviada! 📸");
+        setMsg("Foto enviada.");
         router.refresh();
       } else {
         setMsg((await r.json().catch(() => ({}))).erro ?? "erro ao enviar foto");
@@ -174,7 +190,7 @@ export default function Dashboard({
         <div className="relative mx-auto flex max-w-2xl items-center justify-between">
           <div>
             <p className="text-sm" style={{ color: "oklch(85% 0.02 155)" }}>Olá,</p>
-            <h1 className="text-xl font-semibold">{primeiro} 👋</h1>
+            <h1 className="text-xl font-semibold">{primeiro}</h1>
           </div>
           <a
             href={`/c/${token}`}
@@ -201,14 +217,24 @@ export default function Dashboard({
                 Plano alimentar {cicloLiberado ? `— ciclo ${cicloLiberado}` : ""}
               </p>
             </div>
-            <a
-              href={`/api/paciente/${token}/dieta/${dietaLiberadaId}/pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-[var(--color-tech-cyan)] px-4 py-2 text-sm font-semibold text-[var(--color-tech-navy-strong)] transition hover:brightness-105"
-            >
-              Baixar PDF
-            </a>
+            <div className="flex shrink-0 items-center gap-2">
+              {dietaConteudo && (
+                <button
+                  onClick={() => setPlanoAberto(true)}
+                  className="rounded-full bg-[var(--color-tech-cyan)] px-4 py-2 text-sm font-semibold text-[var(--color-tech-navy-strong)] transition hover:brightness-105"
+                >
+                  Abrir plano
+                </button>
+              )}
+              <a
+                href={`/api/paciente/${token}/dieta/${dietaLiberadaId}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                PDF
+              </a>
+            </div>
           </Surface>
         )}
 
@@ -267,30 +293,62 @@ export default function Dashboard({
               Anote seu peso e medidas quando quiser. Isso ajuda a acompanhar sua evolução (não gera dieta nova).
             </p>
             <form onSubmit={salvarMedicao} className="space-y-3">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <label className="text-xs font-medium text-[var(--color-ink-soft)]">
-                  Peso (kg) *
-                  <input
-                    value={peso}
-                    onChange={(e) => setPeso(e.target.value)}
-                    type="number"
-                    step="0.1"
-                    placeholder="Ex.: 84.5"
-                    className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
-                  />
-                </label>
-                {MEDIDAS.map(({ chave, rotulo }) => (
-                  <label key={chave} className="text-xs font-medium text-[var(--color-ink-soft)]">
-                    {rotulo} (cm)
-                    <input
-                      value={medidas[chave] ?? ""}
-                      onChange={(e) => setMedidas((s) => ({ ...s, [chave]: e.target.value }))}
-                      type="number"
-                      step="0.1"
-                      className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
-                    />
-                  </label>
-                ))}
+              {/* peso em destaque — é o registro principal */}
+              <label className="block">
+                <span className="text-xs font-medium text-[var(--color-ink-soft)]">Peso (kg)</span>
+                <input
+                  value={peso}
+                  onChange={(e) => setPeso(e.target.value)}
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  placeholder="Ex.: 84.5"
+                  className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-4 py-3 text-2xl font-semibold tabular-nums text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
+                />
+              </label>
+
+              {/* medidas corporais — opcionais, recolhidas por padrão */}
+              <div className="rounded-xl border border-[var(--color-line)]">
+                <button
+                  type="button"
+                  onClick={() => setMedidasAbertas((v) => !v)}
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-[var(--color-ink)]"
+                  aria-expanded={medidasAbertas}
+                >
+                  Medidas corporais (opcional)
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`h-4 w-4 fill-current text-[var(--color-ink-soft)] transition-transform ${medidasAbertas ? "rotate-180" : ""}`}
+                  >
+                    <path d="M12 15.5 5.5 9 7 7.5l5 5 5-5L18.5 9z" />
+                  </svg>
+                </button>
+                {medidasAbertas && (
+                  <div className="space-y-3 border-t border-[var(--color-line)] p-3">
+                    {GRUPOS_MEDIDAS.map(({ grupo, itens }) => (
+                      <div key={grupo}>
+                        <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-ink-soft)]">
+                          {grupo}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                          {itens.map(({ chave, rotulo }) => (
+                            <label key={chave} className="text-xs font-medium text-[var(--color-ink-soft)]">
+                              {rotulo} (cm)
+                              <input
+                                value={medidas[chave] ?? ""}
+                                onChange={(e) => setMedidas((s) => ({ ...s, [chave]: e.target.value }))}
+                                type="number"
+                                step="0.1"
+                                inputMode="decimal"
+                                className="mt-1 w-full rounded-xl border border-[var(--color-line-strong)] px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-tech-cyan)] focus:ring-2 focus:ring-[var(--color-tech-cyan-soft)]"
+                              />
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <input
                 value={obs}
@@ -365,6 +423,17 @@ export default function Dashboard({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={zoom} alt="Foto ampliada" className="max-h-full max-w-full rounded-xl shadow-[var(--shadow-lifted)]" />
         </div>
+      )}
+
+      {planoAberto && dietaConteudo && (
+        <PlanoView
+          texto={dietaConteudo}
+          ciclo={cicloLiberado}
+          pdfHref={
+            dietaLiberadaId ? `/api/paciente/${token}/dieta/${dietaLiberadaId}/pdf` : null
+          }
+          onClose={() => setPlanoAberto(false)}
+        />
       )}
     </div>
   );

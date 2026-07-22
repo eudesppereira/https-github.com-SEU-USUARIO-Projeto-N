@@ -1,7 +1,6 @@
-// Geração do PDF do plano alimentar liberado. Cabeçalho com marca do
-// consultório (paleta oficial do MIV Eudes Pereira — navy + ciano); o brasão
-// é um placeholder desenhado em SVG até o arquivo de logo real ser
-// exportado para public/brand/.
+// Geração do PDF do plano alimentar liberado. Paleta unificada em VERDE
+// (padrão único da marca). O brasão é um placeholder em SVG até o arquivo de
+// logo real ser exportado para public/brand/.
 import {
   Document,
   Page,
@@ -15,11 +14,13 @@ import {
 } from "@react-pdf/renderer";
 import { parsearDieta, type DietaItem } from "./dieta-parse";
 
-const NAVY = "#0b1c33";
-const CYAN = "#45c7f4";
+// PADRÃO ÚNICO VERDE — react-pdf não aceita oklch(), então usamos hex
+// equivalentes aos tokens verdes do app.
+const NAVY = "#183a24"; // verde-floresta profundo (era navy)
+const CYAN = "#4a9e68"; // verde médio de acento (era ciano)
 const CHARCOAL = "#4b4b4d";
 const LINE = "#e2e5e8";
-const CIANO_SUAVE = "#eef8fd";
+const CIANO_SUAVE = "#eef5ef"; // verde bem claro (era ciano suave)
 
 const styles = StyleSheet.create({
   page: { fontSize: 10, color: CHARCOAL, paddingBottom: 48 },
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   metaHeroUnidade: { fontSize: 11, fontWeight: 700, color: NAVY, marginBottom: 3 },
   metaHeroObjetivo: {
     fontSize: 8.5,
-    color: "#3f7ea3",
+    color: "#3f7a52",
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 4,
     paddingHorizontal: 10,
-    backgroundColor: "#eef2f5",
+    backgroundColor: "#eef2ee",
   },
   itemCabecalhoTexto: {
     fontSize: 7,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: LINE,
   },
-  linhaItemPar: { backgroundColor: "#fafbfc" },
+  linhaItemPar: { backgroundColor: "#fafbfa" },
   colAlimento: { flex: 2, fontSize: 9.5, color: CHARCOAL },
   // medida caseira: coluna de igual peso (charcoal, à esquerda) — contraste AA
   colMedida: { flex: 1.5, fontSize: 9, color: CHARCOAL, paddingRight: 6 },
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
     color: NAVY,
     borderTopWidth: 1,
     borderTopColor: LINE,
-    backgroundColor: "#f3f7fa",
+    backgroundColor: "#f2f6f2",
   },
   paragrafo: { fontSize: 9.5, lineHeight: 1.5, color: CHARCOAL },
   aviso: {
@@ -187,8 +188,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Brasão placeholder — escudo simples em navy/ciano com monograma, no
-// espírito do símbolo oficial (casal atlético + balança) até o arquivo
+// Brasão placeholder — escudo simples em verde com monograma, até o arquivo
 // exportado do MIV substituir este componente.
 function BrasaoPlaceholder() {
   return (
@@ -229,7 +229,7 @@ const CHAVES_MACRO = ["proteinas", "carboidratos", "gorduras", "agua"];
 function normalizarChave(chave: string): string {
   return chave
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
 }
@@ -291,10 +291,9 @@ function LinhaItemCardapio({ item, index }: { item: DietaItem; index: number }) 
 }
 
 // Helvetica (fonte padrão do react-pdf) não tem glifo pro sinal de menos
-// unicode (−, U+2212) usado no prompt — vira espaço em branco. Normaliza
-// pro hífen comum antes de desenhar qualquer texto no PDF.
+// unicode (−, U+2212) — normaliza pro hífen comum antes de desenhar.
 function normalizarParaPdf(texto: string): string {
-  return texto.replace(/−/g, "-");
+  return texto.replace(/\u2212/g, "-");
 }
 
 function DocumentoDieta({ clienteNome, ciclo, dataLiberacao, conteudo }: DadosPdf) {

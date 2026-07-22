@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const LEDGER = [
   { data: "14 mai", peso: "82,4 kg", delta: null },
@@ -39,11 +40,11 @@ export default function Home() {
         </header>
 
         <div className="mx-auto grid w-full max-w-5xl gap-10 px-6 pb-16 pt-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-24 lg:pt-10">
-          <div>
+          <div className="reveal">
             <h1 className="font-display text-[2.75rem] font-extrabold leading-[1.03] tracking-[-0.02em] text-white text-balance sm:text-6xl">
               Cada grama registrado.
               <br />
-              <span style={{ color: "oklch(72% 0.14 45)" }}>Cada ajuste revisado</span> por
+              <span style={{ color: "oklch(72% 0.14 155)" }}>Cada ajuste revisado</span> por
               gente de verdade.
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: "oklch(88% 0.02 155)" }}>
@@ -66,7 +67,10 @@ export default function Home() {
 
           {/* assinatura visual: ficha de medição real, não um card-dashboard genérico */}
           <div className="mx-auto w-full max-w-sm rounded-xl bg-[var(--color-surface)] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] lg:mx-0 lg:justify-self-end">
-            <div className="flex items-baseline justify-between border-b border-[var(--color-line)] px-5 py-4">
+            <div
+              className="reveal flex items-baseline justify-between border-b border-[var(--color-line)] px-5 py-4"
+              style={{ transitionDelay: "0.1s" }}
+            >
               <div>
                 <p className="text-[11px] text-[var(--color-ink-soft)]">Ficha de acompanhamento</p>
                 <p className="text-sm font-semibold text-[var(--color-ink)]">Check-in de Ana</p>
@@ -74,10 +78,11 @@ export default function Home() {
               <span className="text-[11px] text-[var(--color-ink-soft)]">6 semanas</span>
             </div>
             <div className="px-5 py-2">
-              {LEDGER.map((l) => (
+              {LEDGER.map((l, i) => (
                 <div
                   key={l.data}
-                  className="flex items-center justify-between border-b border-[var(--color-line)] py-2.5 text-sm last:border-0"
+                  className="reveal flex items-center justify-between border-b border-[var(--color-line)] py-2.5 text-sm last:border-0"
+                  style={{ transitionDelay: `${0.24 + i * 0.14}s` }}
                 >
                   <span className="text-[var(--color-ink-soft)]">{l.data}</span>
                   <span className="font-medium tabular-nums text-[var(--color-ink)]">{l.peso}</span>
@@ -90,7 +95,10 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <p className="border-t border-[var(--color-line)] px-5 py-3 text-xs leading-relaxed text-[var(--color-ink-soft)]">
+            <p
+              className="reveal border-t border-[var(--color-line)] px-5 py-3 text-xs leading-relaxed text-[var(--color-ink-soft)]"
+              style={{ transitionDelay: "0.8s" }}
+            >
               “Registrei meu peso e o Eudes ajustou o plano na mesma semana.”
             </p>
           </div>
@@ -100,12 +108,12 @@ export default function Home() {
       <main className="flex-1">
         {/* como funciona, contado com o próprio mecanismo do produto: o chat */}
         <section className="mx-auto max-w-5xl px-6 py-20">
-          <p className="max-w-md text-[var(--color-ink-soft)]">
+          <p className="reveal max-w-md text-[var(--color-ink-soft)]">
             Como isso acontece, na prática — a mesma conversa que você já teria no WhatsApp:
           </p>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-3 lg:gap-4">
-            <div>
+            <div className="reveal" style={{ transitionDelay: "0s" }}>
               <p className="mb-2 text-sm font-semibold text-[var(--color-ink)]">
                 Você conta o que precisa
               </p>
@@ -117,7 +125,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
+            <div className="reveal" style={{ transitionDelay: "0.12s" }}>
               <p className="mb-2 text-sm font-semibold text-[var(--color-ink)]">
                 Eudes revisa antes de liberar
               </p>
@@ -131,7 +139,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
+            <div className="reveal" style={{ transitionDelay: "0.24s" }}>
               <p className="mb-2 text-sm font-semibold text-[var(--color-ink)]">
                 Você registra, a ficha atualiza
               </p>
@@ -176,6 +184,7 @@ export default function Home() {
       <footer className="mx-auto w-full max-w-5xl px-6 py-8 text-xs text-[var(--color-ink-soft)]">
         © {new Date().getFullYear()} Nutre.AI
       </footer>
+      <ScrollReveal />
     </div>
   );
 }

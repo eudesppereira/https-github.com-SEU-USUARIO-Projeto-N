@@ -66,6 +66,7 @@ export default async function PaginaPaciente({
       planoStatus={dietaLiberada ? "liberado" : dietaPendente ? "revisao" : "nenhum"}
       dietaLiberadaId={dietaLiberada?.id ?? null}
       cicloLiberado={dietaLiberada?.ciclo ?? null}
+      dietaConteudo={dietaLiberada?.conteudo ?? null}
       checkins={checkins.map((c) => ({
         id: c.id,
         data: c.data.toISOString(),

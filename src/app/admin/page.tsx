@@ -14,6 +14,11 @@ const rotuloStatus: Record<string, string> = {
   rascunho: "Rascunho",
 };
 
+function iniciais(nome: string): string {
+  const p = nome.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+}
+
 export default async function FilaAdmin() {
   if (!(await sessaoAdminValida())) redirect("/admin/login");
 
@@ -38,11 +43,16 @@ export default async function FilaAdmin() {
         className="block rounded-xl border border-[var(--color-line)] bg-white p-4 shadow-[var(--shadow-soft)] transition hover:border-[var(--color-tech-cyan)] hover:shadow-[var(--shadow-soft)]"
       >
         <div className="flex items-center justify-between">
-          <div>
-            <span className="font-semibold text-[var(--color-ink)]">
-              {dieta.caso.cliente.nome}
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-soft)] font-display text-xs font-bold text-[var(--color-brand-strong)]">
+              {iniciais(dieta.caso.cliente.nome)}
             </span>
-            <span className="ml-2 text-sm text-[var(--color-ink-soft)]">ciclo {dieta.ciclo}</span>
+            <div>
+              <span className="font-semibold text-[var(--color-ink)]">
+                {dieta.caso.cliente.nome}
+              </span>
+              <span className="ml-2 text-sm text-[var(--color-ink-soft)]">ciclo {dieta.ciclo}</span>
+            </div>
           </div>
           <span className="text-xs text-[var(--color-ink-soft)]">
             {dieta.criadoEm.toLocaleString("pt-BR")}
@@ -80,7 +90,7 @@ export default async function FilaAdmin() {
           </h1>
           {pendentes.length === 0 ? (
             <p className="rounded-xl border border-dashed border-[var(--color-line-strong)] p-6 text-center text-sm text-[var(--color-ink-soft)]">
-              Nenhum caso na fila. 👌
+              Nenhum caso na fila.
             </p>
           ) : (
             <div className="space-y-3">

@@ -5,16 +5,17 @@
   --background: oklch(98.5% 0.004 155);
   --foreground: oklch(21% 0.015 155);
 
-  /* verde floresta como cor "committed" (cobre superfícies grandes: hero, header),
-     não só um acento em botão. Laranja terracota é o único contraponto quente,
-     reservado a delta positivo/estado — nunca decoração. */
+  /* PADRÃO ÚNICO: verde-floresta como a cor da marca em TODAS as superfícies
+     (hero, header, cards de destaque, painel do profissional, PDF).
+     Removidos o navy/cyan e a terracota — nada mais alterna de cor. */
   --color-brand: oklch(28% 0.08 155);
   --color-brand-strong: oklch(19% 0.06 155);
   --color-brand-mid: oklch(46% 0.11 155);
   --color-brand-soft: oklch(93% 0.03 155);
 
-  --color-accent: oklch(58% 0.17 45);
-  --color-accent-strong: oklch(48% 0.16 45);
+  /* "accent" agora é verde (usado em delta positivo/estado). Antes terracota. */
+  --color-accent: oklch(46% 0.11 155);
+  --color-accent-strong: oklch(40% 0.10 155);
 
   --color-surface: oklch(100% 0 0);
   --color-ink: oklch(21% 0.015 155);
@@ -22,19 +23,19 @@
   --color-line: oklch(90% 0.008 155);
   --color-line-strong: oklch(80% 0.012 155);
 
-  /* navy + ciano — identidade oficial do consultório (MIV Eudes Pereira).
-     Híbrido: verde continua base/superfície grande; navy+cyan viram os
-     accents "tech" — CTA, links, focus, destaques, cabeçalho do PDF. */
-  --color-tech-cyan: #45c7f4;
-  --color-tech-cyan-strong: #1fa8db;
-  --color-tech-cyan-soft: oklch(93% 0.045 220);
-  --color-tech-navy: #0b1c33;
-  --color-tech-navy-strong: #061120;
+  /* Tokens "tech" mantidos pelo NOME (para não quebrar as classes existentes),
+     mas remapeados para a família VERDE — assim CTA, links, focus, destaques e
+     cabeçalho do PDF passam a ser verdes sem mexer em cada componente. */
+  --color-tech-cyan: oklch(72% 0.14 155);
+  --color-tech-cyan-strong: oklch(56% 0.12 155);
+  --color-tech-cyan-soft: oklch(93% 0.03 155);
+  --color-tech-navy: oklch(19% 0.06 155);
+  --color-tech-navy-strong: oklch(13% 0.045 155);
   --color-tech-charcoal: #4b4b4d;
 
   /* profundidade — sombras em camadas em vez de flat border */
   --shadow-soft: 0 1px 2px rgba(16, 24, 20, 0.05), 0 10px 28px -16px rgba(16, 24, 20, 0.22);
-  --shadow-lifted: 0 24px 60px -24px rgba(6, 17, 32, 0.4);
+  --shadow-lifted: 0 24px 60px -24px rgba(16, 32, 20, 0.4);
 }
 
 @theme inline {
@@ -44,8 +45,7 @@
   --font-display: var(--font-archivo);
 }
 
-/* App desenhado com tema claro; não inverter no modo escuro do SO
-   (evitava texto branco em fundo branco). */
+/* App desenhado com tema claro; não inverter no modo escuro do SO. */
 
 body {
   background: var(--background);
@@ -63,4 +63,25 @@ select {
 input::placeholder,
 textarea::placeholder {
   color: oklch(52% 0.02 155);
+}
+
+/* ─── Movimento no scroll (Landing e Planos) ─────────────────────────────
+   Aplique class="reveal" nos blocos que devem entrar; o observer no
+   componente adiciona .in quando o elemento entra na viewport. */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none;
+  }
 }

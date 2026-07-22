@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Surface } from "@/components/ui/Surface";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 interface Plano {
   id: "essencial" | "performance" | "premium";
@@ -185,8 +186,8 @@ export default function PaginaPlanos() {
               titulo: "Conversa, não formulário",
               texto: "A avaliação inteira acontece no chat — sem questionário de 40 perguntas.",
             },
-          ].map((f) => (
-            <Surface key={f.titulo} className="p-5">
+          ].map((f, i) => (
+            <Surface key={f.titulo} className="reveal p-5" style={{ transitionDelay: `${i * 0.1}s` }}>
               <p className="text-sm font-semibold text-[var(--color-tech-navy)]">{f.titulo}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--color-ink-soft)]">{f.texto}</p>
             </Surface>
@@ -196,7 +197,7 @@ export default function PaginaPlanos() {
 
       {/* planos */}
       <section id="planos" className="mx-auto max-w-5xl px-6 py-8">
-        <div className="mb-10 text-center">
+        <div className="reveal mb-10 text-center">
           <h2 className="font-display text-2xl font-extrabold tracking-tight text-[var(--color-ink)] sm:text-3xl">
             Planos de assinatura
           </h2>
@@ -206,16 +207,21 @@ export default function PaginaPlanos() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {PLANOS.map((p) =>
+          {PLANOS.map((p, i) =>
             p.destaque ? (
               <div
                 key={p.id}
-                className="flex flex-col rounded-xl bg-linear-to-br from-[var(--color-tech-navy)] to-[var(--color-tech-navy-strong)] p-6 shadow-[var(--shadow-lifted)] lg:-translate-y-3"
+                className="reveal flex flex-col rounded-xl bg-linear-to-br from-[var(--color-tech-navy)] to-[var(--color-tech-navy-strong)] p-6 shadow-[var(--shadow-lifted)] lg:-translate-y-3"
+                style={{ transitionDelay: `${i * 0.1}s` }}
               >
                 <PlanoConteudo p={p} irPraAssinatura={irPraAssinatura} />
               </div>
             ) : (
-              <Surface key={p.id} className="flex flex-col p-6">
+              <Surface
+                key={p.id}
+                className="reveal flex flex-col p-6"
+                style={{ transitionDelay: `${i * 0.1}s` }}
+              >
                 <PlanoConteudo p={p} irPraAssinatura={irPraAssinatura} />
               </Surface>
             )
@@ -225,7 +231,7 @@ export default function PaginaPlanos() {
 
       {/* conta: entrar / assinar */}
       <section id="conta" className="mx-auto max-w-md px-6 py-16">
-        <Surface className="p-6">
+        <Surface className="reveal p-6">
           <div className="mb-5 flex gap-1 rounded-full bg-[var(--color-brand-soft)] p-1">
             <button
               onClick={() => setAba("assinar")}
@@ -338,6 +344,7 @@ export default function PaginaPlanos() {
         © {new Date().getFullYear()} Nutre.AI · Nutricionista Eudes Pereira — CRN 52959 · Planos e
         valores desta página são ilustrativos.
       </footer>
+      <ScrollReveal />
     </div>
   );
 }
