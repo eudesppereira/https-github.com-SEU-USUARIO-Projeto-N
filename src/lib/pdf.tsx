@@ -20,7 +20,7 @@ import { parsearDieta, type DietaItem } from "./dieta-parse";
 
 // Versão do template. Suba este número sempre que o layout mudar: PDFs salvos
 // por versões antigas são regenerados no próximo acesso (ver lib/pdf-cache.ts).
-export const PDF_TEMPLATE_VERSION = 2;
+export const PDF_TEMPLATE_VERSION = 3;
 
 // PALETA — padrão Nutre.AI
 const VERDE_ESCURO = "#0f3d26"; // base do cabeçalho e "N" do brasão

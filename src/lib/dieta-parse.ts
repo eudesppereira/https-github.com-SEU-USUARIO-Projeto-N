@@ -85,6 +85,17 @@ function limparLinha(linha: string): string {
   return linha.trim();
 }
 
+// A próxima linha não-vazia é um item de cardápio ("- ...")? Usado para
+// reconhecer um título de refeição sem colchetes mesmo sem o cabeçalho
+// *CARDÁPIO* — o que distingue "*Café da manhã*" (refeição) de um rótulo em bold.
+function proximaLinhaEhItem(linhas: string[], idx: number): boolean {
+  for (let j = idx + 1; j < linhas.length; j++) {
+    if (!linhas[j]) continue;
+    return RE_ITEM.test(linhas[j]);
+  }
+  return false;
+}
+
 export function parsearDieta(textoBruto: string): DietaParseada {
   const resultado: DietaParseada = {
     perfil: [],
@@ -107,7 +118,8 @@ export function parsearDieta(textoBruto: string): DietaParseada {
     refeicaoAtual = null;
   }
 
-  for (const linha of linhas) {
+  for (let idx = 0; idx < linhas.length; idx++) {
+    const linha = linhas[idx];
     if (!linha) continue;
 
     const matchRefeicaoColchete = linha.match(RE_REFEICAO_COLCHETE);
@@ -125,16 +137,20 @@ export function parsearDieta(textoBruto: string): DietaParseada {
       continue;
     }
 
-    // título de refeição sem colchetes (formato legado, ex.: "*Café da manhã — 7h*") —
-    // só entra em jogo depois que *CARDÁPIO* já foi visto, pra não confundir com
-    // rótulos em bold de outras seções.
-    if (secaoAtual === "CARDAPIO") {
-      const matchRefeicaoSimples = linha.match(RE_REFEICAO_SIMPLES);
-      if (matchRefeicaoSimples) {
-        fecharRefeicao();
-        refeicaoAtual = { titulo: matchRefeicaoSimples[1].trim(), itens: [], subtotal: null };
-        continue;
-      }
+    // título de refeição sem colchetes (ex.: "*Café da manhã*"): aceito mesmo sem
+    // o cabeçalho *CARDÁPIO*, desde que a próxima linha seja um item ("- ..."). Isso
+    // torna o parser tolerante a dietas fora do padrão (ex.: reavaliação que omitiu
+    // *PERFIL METABÓLICO*/*CARDÁPIO*), garantindo o mesmo design no chat e no PDF.
+    const matchRefeicaoSimples = linha.match(RE_REFEICAO_SIMPLES);
+    if (
+      matchRefeicaoSimples &&
+      !matchRefeicaoSimples[1].trim().endsWith(":") &&
+      (secaoAtual === "CARDAPIO" || proximaLinhaEhItem(linhas, idx))
+    ) {
+      fecharRefeicao();
+      refeicaoAtual = { titulo: matchRefeicaoSimples[1].trim(), itens: [], subtotal: null };
+      secaoAtual = "CARDAPIO";
+      continue;
     }
 
     if (linha.startsWith("⚠") && /OBSERVA/i.test(linha)) {
