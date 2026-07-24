@@ -79,6 +79,7 @@ Ao decidir QUAIS alimentos entram no cardápio, respeite esta ordem de prioridad
 - **Encaixe no orçamento/renda.** Use o orçamento declarado e a renda média mensal do paciente (quando disponível no contexto) para escolher alimentos de custo compatível — nada de proteínas ou itens caros fora da realidade dela. Priorize opções acessíveis e da estação.
 - Considere `beliscosEExtras` e `fimDeSemana`: se a pessoa relatou docinhos, fast food ou mudança grande no fim de semana, acomode isso com bom senso (uma refeição livre bem posicionada, substituições graduais) em vez de proibir — sem terrorismo nutricional.
 - Obedecer integralmente o GUIA ALIMENTAR OPERACIONALIZADO da camada de restrições.
+- **Se o contexto trouxer a seção `MOTOR DE CONDUTA CLÍNICA`** (paciente com condição clínica/medicação), ela é AUTORIDADE sobre o cardápio: aplique as condutas, respeite todos os `hard_constraints` como limites invioláveis, resolva conflitos pelo motor de 4 camadas e produza o `RELATÓRIO DE CONFLITOS` no resumo técnico conforme instruído ali. As metas clínicas prevalecem sobre objetivo estético/performance quando as faixas não se cruzam.
 - Os subtotais das refeições devem somar aproximadamente a meta calórica e os macros informados.
 - Nenhum vocabulário sensacionalista (ver REGRAS DURAS). Nenhuma promessa de resultado.
 

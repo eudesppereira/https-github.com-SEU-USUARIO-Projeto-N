@@ -10,6 +10,7 @@ import { auditar } from "./audit";
 import { promptBase } from "./prompt";
 import { lerMemoria, type MemoriaCaso } from "./caso";
 import { validarDieta } from "./validador";
+import { montarBlocoConduta } from "./conduta-clinica";
 import type { PerfilMetabolico } from "./calculos";
 import { montarBlocoDri } from "./dri/perfil-dri";
 import type { SexoEntrada } from "./dri/dri-data";
@@ -77,6 +78,8 @@ function montarContextoCaso(memoria: MemoriaCaso, cliente: Cliente, ciclo: numbe
     JSON.stringify(memoria.anamnese ?? {}, null, 2),
     "```",
     "",
+    montarBlocoConduta((memoria.anamnese ?? {}) as Record<string, unknown>),
+    "",
     "### Cálculos executados pelo sistema (OBRIGATÓRIO usar exatamente)",
     "```json",
     JSON.stringify(perfil ?? {}, null, 2),
@@ -110,6 +113,27 @@ function montarContextoCaso(memoria: MemoriaCaso, cliente: Cliente, ciclo: numbe
     .join("\n");
 }
 
+// Monta o system prompt completo da geração (base + prompt de geração +
+// contexto do caso, já com o motor de conduta clínica). Exportado para os
+// scripts de teste reproduzirem exatamente a mesma montagem de produção.
+export function montarSystemGeracao(
+  memoria: MemoriaCaso,
+  cliente: Cliente,
+  ciclo: number,
+  instrucoesExtra?: string
+): string {
+  return (
+    promptBase() +
+    "\n\n---\n\n" +
+    promptGeracao() +
+    "\n\n---\n\n" +
+    montarContextoCaso(memoria, cliente, ciclo) +
+    (instrucoesExtra
+      ? `\n\n## INSTRUÇÕES ADICIONAIS DO NUTRICIONISTA (aplicar obrigatoriamente)\n${instrucoesExtra}`
+      : "")
+  );
+}
+
 function parsearSaida(texto: string): { resumoTecnico: string; dieta: string } | null {
   const m = texto.match(
     /===RESUMO_TECNICO===\s*([\s\S]*?)\s*===DIETA===\s*([\s\S]*?)\s*(?:===FIM===|$)/
@@ -139,15 +163,7 @@ export async function gerarDietaParaRevisao(
   const anamnese = (memoria.anamnese ?? {}) as Record<string, unknown>;
   const sexo = anamnese.sexo === "feminino" ? "feminino" : "masculino";
 
-  const system =
-    promptBase() +
-    "\n\n---\n\n" +
-    promptGeracao() +
-    "\n\n---\n\n" +
-    montarContextoCaso(memoria, cliente, ciclo) +
-    (instrucoesExtra
-      ? `\n\n## INSTRUÇÕES ADICIONAIS DO NUTRICIONISTA (aplicar obrigatoriamente)\n${instrucoesExtra}`
-      : "");
+  const system = montarSystemGeracao(memoria, cliente, ciclo, instrucoesExtra);
 
   let ultimoErro: string[] = [];
   let ultimaSaida: { resumoTecnico: string; dieta: string } | null = null;
