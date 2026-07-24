@@ -44,6 +44,12 @@ Subtotal: [kcal] | P [g] C [g] G [g]
 
 **Formato obrigatório de cada item do cardápio (DUAS COLUNAS por alimento — medida caseira + gramas)**: escreva SEMPRE `Alimento — [medida caseira] ([X]g)`. As duas colunas são obrigatórias em TODO item: a medida caseira (coluna 1 no PDF) e o peso em gramas entre parênteses (coluna 2 no PDF). Exemplos: "Arroz branco cozido — 6 colheres de sopa (90g)", "Peito de frango grelhado — 1 filé médio (130g)", "Banana prata — 1 unidade média (100g)", "Azeite de oliva — 1 colher de sopa (13g)". Líquidos podem usar ml: "Café sem açúcar — 1 xícara (200ml)". Use medidas que a pessoa reconhece no dia a dia (unidade, fatia, colher de sopa/chá, xícara, escumadeira, concha, pegador, punhado) — NUNCA deixe um item só em gramas e NUNCA só em medida caseira sem o peso. Ao final de cada refeição, sempre feche com a linha de Subtotal com o total calórico e macros daquela refeição.
 
+**Formato obrigatório do cabeçalho de cada refeição**: escreva SEMPRE `*[Nome da refeição — horário]*`, entre colchetes e com horário. Ex.: `*[Café da manhã — 7h]*`, `*[Almoço — 12h30]*`, `*[Lanche da tarde — 16h]*`, `*[Jantar — 20h]*`. NUNCA escreva o nome da refeição sem colchetes (ex.: ~~`*Café da Manhã*`~~) nem sem horário.
+
+**Formato obrigatório do PERFIL METABÓLICO**: cada campo em SUA PRÓPRIA LINHA (TMB, Gasto Total Estimado, Meta Calórica, Ritmo esperado, e cada macro em uma linha, Água). NUNCA condense vários campos numa linha só (ex.: ~~`TMB: 1810 | GET: 2806 | Meta: 3150`~~).
+
+**PADRÃO DE ENTREGA INEGOCIÁVEL (ciclo 1, reavaliação/devolução E retorno mensal):** a estrutura, a ordem e a formatação das seções acima são FIXAS e IDÊNTICAS em toda geração. Instruções do nutricionista mudam apenas o CONTEÚDO (alimentos, quantidades, ajustes clínicos) — JAMAIS o formato de entrega. Ao reavaliar uma dieta devolvida ou gerar a dieta do retorno mensal, reproduza exatamente a mesma estrutura, do cabeçalho ao rodapé: sem inventar layout novo, sem omitir seções obrigatórias, sem mudar a formatação dos itens/refeições/perfil. O padrão só muda se o nutricionista pedir a mudança de formato EXPLICITAMENTE.
+
 *SUBSTITUIÇÕES*
 
 Proteínas (~30g P): frango 130g = peixe branco 150g = 4 ovos = atum em água 120g = whey 1 scoop = carne magra 120g = tofu firme 200g = leguminosas cozidas 200g (têm carbo)
@@ -89,7 +95,7 @@ Inclua: flags ativos em destaque no topo (se houver), dados-chave do caso (idade
 
 ## FORMATO EXATO DA SAÍDA
 
-Responda SOMENTE com os dois blocos, nesta ordem, sem texto fora deles:
+Responda SOMENTE com os dois blocos, nesta ordem, sem texto fora deles. Isto vale SEMPRE — inclusive quando houver `INSTRUÇÕES ADICIONAIS DO NUTRICIONISTA` (reavaliação/devolução) e no retorno mensal. Os três marcadores são obrigatórios em toda geração, e o bloco `[DIETA]` sempre na estrutura obrigatória completa e idêntica (mesmo perfil, mesmo cabeçalho de refeições entre colchetes com horário, mesmos subtotais, mesmas seções):
 
 ===RESUMO_TECNICO===
 [resumo técnico completo]

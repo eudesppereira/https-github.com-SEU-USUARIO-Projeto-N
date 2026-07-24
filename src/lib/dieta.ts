@@ -129,7 +129,7 @@ export function montarSystemGeracao(
     "\n\n---\n\n" +
     montarContextoCaso(memoria, cliente, ciclo) +
     (instrucoesExtra
-      ? `\n\n## INSTRUÇÕES ADICIONAIS DO NUTRICIONISTA (aplicar obrigatoriamente)\n${instrucoesExtra}`
+      ? `\n\n## INSTRUÇÕES ADICIONAIS DO NUTRICIONISTA (aplicar obrigatoriamente)\n${instrucoesExtra}\n\n> Estas instruções mudam apenas o CONTEÚDO da dieta. Mantenha EXATAMENTE o mesmo formato de entrega (estrutura obrigatória completa: perfil por linha, cabeçalhos de refeição \`*[Nome — horário]*\`, subtotais, seções e os marcadores ===RESUMO_TECNICO===/===DIETA===/===FIM===).`
       : "")
   );
 }
