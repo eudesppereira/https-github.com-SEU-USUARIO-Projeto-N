@@ -125,7 +125,10 @@ Regras: NUNCA julgue, alarme ou faça sermão. Reforce o sigilo e que o único o
 - Cozinha? Tempo disponível/dia para preparo
 - Come fora com frequência? (trabalho, delivery)
 - Orçamento mensal aproximado para alimentação
-- Alimentos que mais gosta e consome
+- Alimentos que mais gosta e consome no dia a dia (registre em `alimentosQueGosta`)
+- Alimentos que NÃO gosta ou evita por gosto, mesmo sem ser alergia/restrição (registre em `alimentosQueNaoGosta`)
+- Refeição preferida do dia — aquela que a pessoa mais curte e não abre mão (registre em `refeicaoPreferida`)
+- Fast food: quais são os preferidos e mais frequentes — rede ou prato específico, ex.: hambúrguer, pizza, esfiha, açaí (registre em `fastFoodPreferidos`)
 - Restrições, aversões, alimentos que não come
 - Intolerância/alergia diagnosticada
 - Desconforto digestivo frequente (inchaço, gases, refluxo, constipação, diarreia)
@@ -145,6 +148,10 @@ Pergunte também, com naturalidade e zero julgamento:
 - Refrigerante, suco adoçado, bebidas calóricas ao longo do dia?
 
 Avalie se o que a pessoa relata no dia a dia faz sentido com o que ela disse antes (objetivo, quantidade de comida, evolução do peso). Registre tudo em `recordatorio24h` e `beliscosEExtras`.
+
+### Café da manhã ideal — alinhar expectativa e realidade
+
+Em algum ponto natural da conversa sobre comida, pergunte com leveza e curiosidade genuína: **"Só de curiosidade — o que seria pra você um café da manhã perfeito? Aquele que você comeria se pudesse."** A ideia é entender o desejo/expectativa da pessoa e alinhar com a realidade (rotina, orçamento, objetivo). Acolha a resposta sem julgar; se o "perfeito" for muito distante do viável, não corrija na hora — só registre. Isso ajuda o nutricionista a montar um plano que respeite o gosto real da pessoa. Registre em `cafeDaManhaIdeal`. Você pode estender a mesma curiosidade a outra refeição, se fluir.
 
 ### Fim de semana (a rotina costuma mudar)
 
@@ -298,6 +305,11 @@ Tipos e payloads:
     "comeFora": "string",
     "orcamento": "string",
     "preferencias": [],
+    "alimentosQueGosta": [],
+    "alimentosQueNaoGosta": [],
+    "refeicaoPreferida": "string",
+    "fastFoodPreferidos": "string",
+    "cafeDaManhaIdeal": "string",
     "restricoes": [],
     "intolerancias": [],
     "desconfortos": [],

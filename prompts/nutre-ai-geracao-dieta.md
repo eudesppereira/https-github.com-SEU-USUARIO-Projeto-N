@@ -64,9 +64,18 @@ Este plano tem caráter de informação e orientação nutricional, elaborado co
 
 ## REGRAS DE MONTAGEM DO CARDÁPIO
 
-- **Fique o MAIS PRÓXIMO POSSÍVEL do que o paciente já come.** Use o recordatório do dia típico (campo `recordatorio24h`) como base do cardápio. Aproveite ao máximo os alimentos, preparos e horários que a pessoa já usa e gosta — a dieta deve parecer uma versão organizada da rotina dela, não um cardápio estranho e cheio de alimentos novos. Quanto mais familiar, maior a adesão.
-- **Só troque o necessário.** Mantenha a maioria dos alimentos atuais; ajuste quantidades e faça substituições pontuais apenas onde for preciso para bater a meta calórica/macros ou para reduzir ultraprocessados. Ao substituir, escolha o equivalente mais parecido e usual para a pessoa. Não elimine o que ela ama sem necessidade — reposicione ou ajuste a porção.
-- Respeite tempo de preparo, acesso a refrigeração, regionalidade e sazonalidade (interior de SP: feira local, frutas da estação). Se treina em jejum ou à noite, posicione as refeições peri-treino adequadamente.
+### HIERARQUIA DE ESCOLHA DOS ALIMENTOS (ordem de prioridade — siga nesta ordem)
+
+Ao decidir QUAIS alimentos entram no cardápio, respeite esta ordem de prioridade:
+
+1. **1º — O que o paciente JÁ come e gosta (prioridade máxima).** Antes de qualquer outra coisa, monte a dieta em torno dos alimentos, preparos, refeições e horários que a própria pessoa já usa. Use como base os campos da anamnese: `recordatorio24h` (dia típico), `comportamento.alimentosQueGosta` e `comportamento.preferencias` (alimentos preferidos), `comportamento.refeicaoPreferida` (refeição favorita), `comportamento.cafeDaManhaIdeal` (café da manhã ideal declarado). Quanto mais o cardápio parecer uma versão organizada do que ela já come, maior a adesão. NUNCA elimine um alimento que a pessoa ama sem necessidade — reposicione ou ajuste a porção. Respeite `comportamento.alimentosQueNaoGosta`, restrições, aversões e intolerâncias: o que a pessoa não gosta ou não come NÃO entra.
+2. **2º — Regionalidade e cultura alimentar local.** Só depois de esgotar o que o paciente já come, complete o cardápio (quando faltar variedade ou for preciso substituir) com alimentos típicos da REGIÃO dele e do que as pessoas daquela região costumam comer. Use o campo `Cidade` do contexto do caso para inferir a regionalidade (ex.: interior de SP → feira local, frutas da estação, arroz-feijão-proteína-salada; pratos e ingredientes comuns na cultura local). Prefira o que é acessível, sazonal e familiar naquela região a alimentos genéricos ou "fitness" fora da realidade dela.
+3. **3º — Ajustes técnicos.** Por último, faça as trocas mínimas necessárias para bater a meta calórica/macros e reduzir ultraprocessados, sempre escolhendo o equivalente mais parecido e usual para a pessoa (ver *SUBSTITUIÇÕES*).
+
+### Demais regras
+
+- **Só troque o necessário.** Mantenha a maioria dos alimentos atuais; ajuste quantidades e faça substituições pontuais apenas onde for preciso para bater a meta calórica/macros ou para reduzir ultraprocessados.
+- Respeite tempo de preparo, acesso a refrigeração e sazonalidade. Se treina em jejum ou à noite, posicione as refeições peri-treino adequadamente.
 - **Encaixe no orçamento/renda.** Use o orçamento declarado e a renda média mensal do paciente (quando disponível no contexto) para escolher alimentos de custo compatível — nada de proteínas ou itens caros fora da realidade dela. Priorize opções acessíveis e da estação.
 - Considere `beliscosEExtras` e `fimDeSemana`: se a pessoa relatou docinhos, fast food ou mudança grande no fim de semana, acomode isso com bom senso (uma refeição livre bem posicionada, substituições graduais) em vez de proibir — sem terrorismo nutricional.
 - Obedecer integralmente o GUIA ALIMENTAR OPERACIONALIZADO da camada de restrições.
