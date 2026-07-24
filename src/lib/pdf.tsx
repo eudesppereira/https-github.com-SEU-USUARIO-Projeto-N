@@ -1,6 +1,8 @@
-// Geração do PDF do plano alimentar liberado. Paleta unificada em VERDE
-// (padrão único da marca). O brasão é um placeholder em SVG até o arquivo de
-// logo real ser exportado para public/brand/.
+// Geração do PDF do plano alimentar liberado. Layout segue a identidade
+// "Nutre.AI" (cabeçalho em gradiente verde→preto, wordmark, faixa de métricas,
+// cartões de macros, refeições em duas colunas e caixa de observações verde).
+// react-pdf não aceita oklch()/gradiente em CSS, então usamos hex e desenhamos
+// o gradiente do cabeçalho via SVG.
 import {
   Document,
   Page,
@@ -8,202 +10,183 @@ import {
   View,
   StyleSheet,
   Svg,
-  Path,
-  Circle,
+  Defs,
+  LinearGradient,
+  Stop,
+  Rect,
   renderToBuffer,
 } from "@react-pdf/renderer";
 import { parsearDieta, type DietaItem } from "./dieta-parse";
 
-// PADRÃO ÚNICO VERDE — react-pdf não aceita oklch(), então usamos hex
-// equivalentes aos tokens verdes do app.
-const NAVY = "#183a24"; // verde-floresta profundo (era navy)
-const CYAN = "#4a9e68"; // verde médio de acento (era ciano)
-const CHARCOAL = "#4b4b4d";
-const LINE = "#e2e5e8";
-const CIANO_SUAVE = "#eef5ef"; // verde bem claro (era ciano suave)
+// Versão do template. Suba este número sempre que o layout mudar: PDFs salvos
+// por versões antigas são regenerados no próximo acesso (ver lib/pdf-cache.ts).
+export const PDF_TEMPLATE_VERSION = 2;
+
+// PALETA — padrão Nutre.AI
+const VERDE_ESCURO = "#0f3d26"; // base do cabeçalho e "N" do brasão
+const VERDE = "#1f9d57"; // acento (".AI", meta diária)
+const VERDE_NUM = "#15803d"; // números dos macros (verde-floresta)
+const VERDE_BOX = "#e9f4ec"; // fundo da caixa de observações
+const INK = "#1a1d1b"; // texto forte (quase preto)
+const INK_SUAVE = "#6b7280"; // texto secundário / medida caseira
+const ROTULO = "#8a8f94"; // rótulos uppercase
+const LINE = "#e5e7eb"; // bordas / divisores
+const LINE_SUAVE = "#eef0ee"; // divisor de linhas da tabela
+
+const HEADER_H = 96;
+const PAGE_W = 595.28; // A4 em pt
 
 const styles = StyleSheet.create({
-  page: { fontSize: 10, color: CHARCOAL, paddingBottom: 48 },
-  header: {
-    backgroundColor: NAVY,
-    paddingVertical: 22,
-    paddingHorizontal: 32,
+  page: { fontSize: 10, color: INK, paddingBottom: 56 },
+
+  // ---- cabeçalho
+  header: { height: HEADER_H, position: "relative", justifyContent: "center" },
+  headerBg: { position: "absolute", top: 0, left: 0 },
+  headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-  },
-  headerTexto: { flexDirection: "column" },
-  marca: { fontSize: 15, fontWeight: 700, color: "#ffffff", letterSpacing: 0.5 },
-  marcaSub: { fontSize: 8, color: CYAN, letterSpacing: 2, marginTop: 2 },
-  corpo: { paddingHorizontal: 32, paddingTop: 20 },
-  faixaPaciente: {
-    flexDirection: "row",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: LINE,
-    paddingBottom: 10,
-    marginBottom: 16,
+    paddingHorizontal: 32,
   },
-  tituloSecao: {
-    fontSize: 10,
-    fontWeight: 700,
-    color: NAVY,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 8,
-    marginTop: 16,
-  },
-  gridChave: { fontSize: 8, color: "#8a8f94", textTransform: "uppercase" },
-  gridValor: { fontSize: 10, color: NAVY, fontWeight: 700, marginTop: 1 },
-
-  // "evidência" — perfil metabólico + macros num único cartão, mesma família visual
-  cartaoPerfil: {
-    borderWidth: 1,
-    borderColor: CYAN,
-    borderLeftWidth: 4,
-    backgroundColor: CIANO_SUAVE,
-    borderRadius: 6,
-    padding: 14,
-  },
-  metaHero: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginBottom: 10 },
-  metaHeroNumero: { fontSize: 26, fontWeight: 700, color: NAVY },
-  metaHeroUnidade: { fontSize: 11, fontWeight: 700, color: NAVY, marginBottom: 3 },
-  metaHeroObjetivo: {
-    fontSize: 8.5,
-    color: "#3f7a52",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  statsSecundarios: { flexDirection: "row", gap: 22, marginBottom: 12 },
-  macrosLinha: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  macroChip: {
-    flex: 1,
-    minWidth: 90,
+  marcaGrupo: { flexDirection: "row", alignItems: "center", gap: 10 },
+  brasao: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: LINE,
-    borderTopWidth: 3,
-    borderTopColor: CYAN,
-    borderRadius: 4,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  macroChipValor: { fontSize: 9, fontWeight: 700, color: NAVY },
-  macroChipRotulo: { fontSize: 7.5, color: "#8a8f94", textTransform: "uppercase", marginTop: 1 },
+  brasaoLetra: { fontSize: 16, fontWeight: 700, color: VERDE_ESCURO },
+  wordmarkLinha: { flexDirection: "row", alignItems: "center" },
+  wordmark: { fontSize: 17, fontWeight: 700, color: "#ffffff" },
+  wordmarkAcento: { fontSize: 17, fontWeight: 700, color: VERDE },
+  emitido: { fontSize: 8.5, color: "#9fb0a6" },
 
-  refeicao: {
-    marginTop: 10,
+  // ---- corpo
+  corpo: { paddingHorizontal: 32, paddingTop: 22 },
+  titulo: { fontSize: 22, fontWeight: 700, color: INK, letterSpacing: -0.3 },
+  subtitulo: { fontSize: 10, color: INK_SUAVE, marginTop: 4 },
+
+  // ---- faixa de métricas (Objetivo · TMB · GET · Meta)
+  metricas: {
+    flexDirection: "row",
     borderWidth: 1,
     borderColor: LINE,
-    borderRadius: 4,
+    borderRadius: 8,
+    marginTop: 18,
     overflow: "hidden",
   },
-  refeicaoTitulo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: NAVY,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+  metricaCelula: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRightWidth: 1,
+    borderRightColor: LINE,
   },
-  refeicaoNumero: {
-    fontSize: 8,
+  metricaCelulaFim: { borderRightWidth: 0 },
+  metricaRotulo: { fontSize: 7.5, color: ROTULO, textTransform: "uppercase", letterSpacing: 0.6 },
+  metricaValor: { fontSize: 12, fontWeight: 700, color: INK, marginTop: 3 },
+  metricaValorMeta: { color: VERDE },
+
+  // ---- rótulos de seção
+  secaoRotulo: {
+    fontSize: 8.5,
     fontWeight: 700,
-    color: NAVY,
-    backgroundColor: CYAN,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    textAlign: "center",
+    color: ROTULO,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginTop: 22,
+    marginBottom: 10,
   },
-  refeicaoTituloTexto: { fontSize: 10, fontWeight: 700, color: "#ffffff" },
-  // cabeçalho das colunas do cardápio (Alimento | Medida caseira | Quantidade)
+
+  // ---- cartões de macros
+  macrosLinha: { flexDirection: "row", gap: 12 },
+  macroCartao: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: LINE,
+    borderRadius: 10,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  macroNumero: { fontSize: 21, fontWeight: 700, color: VERDE_NUM },
+  macroRotulo: { fontSize: 9, color: INK_SUAVE, marginTop: 3 },
+
+  // ---- refeições (duas colunas)
+  refeicao: { flexDirection: "row", paddingTop: 14, marginTop: 14, borderTopWidth: 1, borderTopColor: LINE },
+  refeicaoPrimeira: { marginTop: 0, paddingTop: 0, borderTopWidth: 0 },
+  refeicaoInfo: { width: 128, paddingRight: 12 },
+  refeicaoNome: { fontSize: 11, fontWeight: 700, color: INK },
+  refeicaoDetalhe: { fontSize: 8.5, color: INK_SUAVE, marginTop: 3 },
+  refeicaoTabela: { flex: 1 },
+
   itemCabecalho: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    backgroundColor: "#eef2ee",
+    paddingBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: LINE,
   },
-  itemCabecalhoTexto: {
-    fontSize: 7,
-    fontWeight: 700,
-    color: "#6b7075",
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
-  },
-  colGramasCabecalho: { minWidth: 34, marginLeft: 8, textAlign: "center" },
+  itemCabecalhoTexto: { fontSize: 7, fontWeight: 700, color: ROTULO, textTransform: "uppercase", letterSpacing: 0.4 },
   linhaItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderTopWidth: 1,
-    borderTopColor: LINE,
+    borderBottomWidth: 1,
+    borderBottomColor: LINE_SUAVE,
   },
-  linhaItemPar: { backgroundColor: "#fafbfa" },
-  colAlimento: { flex: 2, fontSize: 9.5, color: CHARCOAL },
-  // medida caseira: coluna de igual peso (charcoal, à esquerda) — contraste AA
-  colMedida: { flex: 1.5, fontSize: 9, color: CHARCOAL, paddingRight: 6 },
-  colGramas: {
+  colAlimento: { flex: 2, fontSize: 9.5, color: INK },
+  colMedida: { flex: 1.5, fontSize: 9, color: INK_SUAVE, textAlign: "right", paddingRight: 8 },
+  colGramas: { width: 46, fontSize: 9.5, fontWeight: 700, color: INK, textAlign: "right" },
+  subtotal: { fontSize: 8.5, color: INK_SUAVE, textAlign: "right", marginTop: 6 },
+
+  // ---- blocos de texto
+  paragrafo: { fontSize: 9.5, lineHeight: 1.5, color: INK },
+  listaSub: { fontSize: 9.5, lineHeight: 1.5, color: INK, marginBottom: 2 },
+
+  caixaObs: {
+    marginTop: 22,
+    backgroundColor: VERDE_BOX,
+    borderRadius: 10,
+    padding: 16,
+  },
+  caixaObsTitulo: {
     fontSize: 8.5,
     fontWeight: 700,
-    color: NAVY,
-    backgroundColor: CIANO_SUAVE,
-    borderRadius: 3,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    marginLeft: 8,
-    minWidth: 34,
-    textAlign: "center",
+    color: VERDE_NUM,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 8,
   },
-  subtotal: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    fontSize: 8.5,
-    fontWeight: 700,
-    color: NAVY,
-    borderTopWidth: 1,
-    borderTopColor: LINE,
-    backgroundColor: "#f2f6f2",
-  },
-  paragrafo: { fontSize: 9.5, lineHeight: 1.5, color: CHARCOAL },
+  caixaObsTexto: { fontSize: 9.5, lineHeight: 1.5, color: "#2f3a33" },
+
   aviso: {
-    marginTop: 10,
+    marginTop: 14,
     borderWidth: 1,
     borderColor: "#f0b64d",
     backgroundColor: "#fff8ec",
-    borderRadius: 4,
-    padding: 10,
+    borderRadius: 10,
+    padding: 14,
   },
+  avisoTitulo: { fontSize: 8.5, fontWeight: 700, color: "#8a5a00", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 },
+
+  // ---- rodapé
   rodape: {
-    marginTop: 24,
-    paddingTop: 12,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    marginHorizontal: 32,
+    paddingVertical: 14,
     borderTopWidth: 1,
     borderTopColor: LINE,
-    fontSize: 7.5,
-    color: "#8a8f94",
-    lineHeight: 1.4,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
+  rodapeTexto: { fontSize: 7.5, color: ROTULO },
+  disclaimer: { fontSize: 7.5, lineHeight: 1.4, color: ROTULO, marginTop: 22 },
 });
-
-// Brasão placeholder — escudo simples em verde com monograma, até o arquivo
-// exportado do MIV substituir este componente.
-function BrasaoPlaceholder() {
-  return (
-    <Svg width={34} height={34} viewBox="0 0 40 40">
-      <Path
-        d="M20 2 L36 8 V20 C36 30 29 36 20 39 C11 36 4 30 4 20 V8 Z"
-        fill={NAVY}
-        stroke={CYAN}
-        strokeWidth={1.5}
-      />
-      <Circle cx={20} cy={18} r={8} fill="none" stroke={CYAN} strokeWidth={1.2} />
-      <Path d="M15 22 L25 22 L23 30 L17 30 Z" fill={CYAN} opacity={0.9} />
-    </Svg>
-  );
-}
 
 interface DadosPdf {
   clienteNome: string;
@@ -212,88 +195,98 @@ interface DadosPdf {
   conteudo: string;
 }
 
-function Cabecalho() {
-  return (
-    <View style={styles.header} fixed>
-      <BrasaoPlaceholder />
-      <View style={styles.headerTexto}>
-        <Text style={styles.marca}>EUDES PEREIRA</Text>
-        <Text style={styles.marcaSub}>NUTRICIONISTA · CRN 52959</Text>
-      </View>
-    </View>
-  );
-}
-
 const CHAVES_MACRO = ["proteinas", "carboidratos", "gorduras", "agua"];
 
 function normalizarChave(chave: string): string {
   return chave
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .trim();
-}
-
-function extrairNumero(valor: string): { numero: string; resto: string } {
-  const m = valor.match(/^([\d.,]+)\s*(.*)$/);
-  return m ? { numero: m[1], resto: m[2] } : { numero: valor, resto: "" };
-}
-
-function CartaoPerfilEMacros({ perfil }: { perfil: [string, string][] }) {
-  const macros = perfil.filter(([k]) => CHAVES_MACRO.includes(normalizarChave(k)));
-  const nucleo = perfil.filter(([k]) => !CHAVES_MACRO.includes(normalizarChave(k)));
-  const meta = nucleo.find(([k]) => normalizarChave(k).includes("meta calorica"));
-  const outrosNucleo = nucleo.filter(([k]) => k !== meta?.[0]);
-  const metaPartes = meta ? extrairNumero(meta[1]) : null;
-
-  return (
-    <View style={styles.cartaoPerfil}>
-      {metaPartes && (
-        <View style={styles.metaHero}>
-          <Text style={styles.metaHeroNumero}>{metaPartes.numero}</Text>
-          <Text style={styles.metaHeroUnidade}>kcal/dia</Text>
-          <Text style={styles.metaHeroObjetivo}>{metaPartes.resto}</Text>
-        </View>
-      )}
-      {outrosNucleo.length > 0 && (
-        <View style={styles.statsSecundarios}>
-          {outrosNucleo.map(([k, v]) => (
-            <View key={k}>
-              <Text style={styles.gridChave}>{k}</Text>
-              <Text style={styles.gridValor}>{v}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-      {macros.length > 0 && (
-        <View style={styles.macrosLinha}>
-          {macros.map(([k, v]) => (
-            <View key={k} style={styles.macroChip}>
-              <Text style={styles.macroChipValor}>{v}</Text>
-              <Text style={styles.macroChipRotulo}>{k}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-}
-
-function LinhaItemCardapio({ item, index }: { item: DietaItem; index: number }) {
-  const estiloLinha = index % 2 === 1 ? [styles.linhaItem, styles.linhaItemPar] : [styles.linhaItem];
-  return (
-    <View style={estiloLinha}>
-      <Text style={styles.colAlimento}>{item.alimento}</Text>
-      <Text style={styles.colMedida}>{item.medidaCaseira ?? ""}</Text>
-      {item.gramas && <Text style={styles.colGramas}>{item.gramas}</Text>}
-    </View>
-  );
 }
 
 // Helvetica (fonte padrão do react-pdf) não tem glifo pro sinal de menos
 // unicode (−, U+2212) — normaliza pro hífen comum antes de desenhar.
 function normalizarParaPdf(texto: string): string {
-  return texto.replace(/\u2212/g, "-");
+  return texto.replace(/−/g, "-");
+}
+
+// "Café da manhã — 7h · 420 kcal" → { nome: "Café da manhã", detalhe: "7h · 420 kcal" }
+function separarTitulo(titulo: string): { nome: string; detalhe: string | null } {
+  const m = titulo.match(/^(.*?)\s*(?:[—–-]|\(|·)\s*(.+?)\)?\s*$/);
+  if (m) return { nome: m[1].trim(), detalhe: m[2].trim() };
+  return { nome: titulo.trim(), detalhe: null };
+}
+
+function Cabecalho({ dataFmt }: { dataFmt: string }) {
+  return (
+    <View style={styles.header} fixed>
+      <Svg style={styles.headerBg} width={PAGE_W} height={HEADER_H} viewBox={`0 0 ${PAGE_W} ${HEADER_H}`} preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+            <Stop offset="0" stopColor={VERDE_ESCURO} />
+            <Stop offset="0.55" stopColor="#0d2018" />
+            <Stop offset="1" stopColor="#080d0a" />
+          </LinearGradient>
+        </Defs>
+        <Rect x="0" y="0" width={PAGE_W} height={HEADER_H} fill="url(#hdr)" />
+      </Svg>
+      <View style={styles.headerRow}>
+        <View style={styles.marcaGrupo}>
+          <View style={styles.brasao}>
+            <Text style={styles.brasaoLetra}>N</Text>
+          </View>
+          <View style={styles.wordmarkLinha}>
+            <Text style={styles.wordmark}>Nutre</Text>
+            <Text style={styles.wordmarkAcento}>.AI</Text>
+          </View>
+        </View>
+        <Text style={styles.emitido}>Emitido em {dataFmt}</Text>
+      </View>
+    </View>
+  );
+}
+
+function FaixaMetricas({ nucleo }: { nucleo: [string, string][] }) {
+  const celulas = nucleo.slice(0, 4);
+  return (
+    <View style={styles.metricas}>
+      {celulas.map(([k, v], i) => {
+        const ehMeta = normalizarChave(k).includes("meta");
+        const estiloCelula =
+          i === celulas.length - 1 ? [styles.metricaCelula, styles.metricaCelulaFim] : [styles.metricaCelula];
+        return (
+          <View key={k} style={estiloCelula}>
+            <Text style={styles.metricaRotulo}>{k}</Text>
+            <Text style={ehMeta ? [styles.metricaValor, styles.metricaValorMeta] : [styles.metricaValor]}>{v}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+function CartoesMacros({ macros }: { macros: [string, string][] }) {
+  return (
+    <View style={styles.macrosLinha}>
+      {macros.map(([k, v]) => (
+        <View key={k} style={styles.macroCartao}>
+          <Text style={styles.macroNumero}>{v}</Text>
+          <Text style={styles.macroRotulo}>{k}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function LinhaItemCardapio({ item }: { item: DietaItem }) {
+  return (
+    <View style={styles.linhaItem}>
+      <Text style={styles.colAlimento}>{item.alimento}</Text>
+      <Text style={styles.colMedida}>{item.medidaCaseira ?? "—"}</Text>
+      <Text style={styles.colGramas}>{item.gramas ?? "—"}</Text>
+    </View>
+  );
 }
 
 function DocumentoDieta({ clienteNome, ciclo, dataLiberacao, conteudo }: DadosPdf) {
@@ -304,106 +297,101 @@ function DocumentoDieta({ clienteNome, ciclo, dataLiberacao, conteudo }: DadosPd
     year: "numeric",
   });
 
+  const macros = dieta.perfil.filter(([k]) => CHAVES_MACRO.includes(normalizarChave(k)));
+  const nucleo = dieta.perfil.filter(([k]) => !CHAVES_MACRO.includes(normalizarChave(k)));
+  const observacoes = [dieta.orientacoes, dieta.acompanhamento].filter(Boolean).join("\n\n");
+
   return (
     <Document title={`Plano alimentar — ${clienteNome}`}>
       <Page size="A4" style={styles.page}>
-        <Cabecalho />
+        <Cabecalho dataFmt={dataFmt} />
 
         <View style={styles.corpo}>
-          <View style={styles.faixaPaciente}>
-            <View>
-              <Text style={styles.gridChave}>Paciente</Text>
-              <Text style={styles.gridValor}>{clienteNome}</Text>
-            </View>
-            <View>
-              <Text style={styles.gridChave}>Ciclo</Text>
-              <Text style={styles.gridValor}>{ciclo}</Text>
-            </View>
-            <View>
-              <Text style={styles.gridChave}>Data</Text>
-              <Text style={styles.gridValor}>{dataFmt}</Text>
-            </View>
-          </View>
+          <Text style={styles.titulo}>Plano Alimentar Personalizado</Text>
+          <Text style={styles.subtitulo}>
+            {clienteNome} · Ciclo {ciclo} · Elaborado por Eudes Pereira — CRN 52959
+          </Text>
 
-          {dieta.perfil.length > 0 && (
+          {nucleo.length > 0 && <FaixaMetricas nucleo={nucleo} />}
+
+          {macros.length > 0 && (
             <>
-              <Text style={styles.tituloSecao}>Perfil metabólico</Text>
-              <CartaoPerfilEMacros perfil={dieta.perfil} />
+              <Text style={styles.secaoRotulo}>Distribuição de macros</Text>
+              <CartoesMacros macros={macros} />
             </>
           )}
 
           {dieta.refeicoes.length > 0 ? (
-            <View>
-              <Text style={styles.tituloSecao}>Plano alimentar</Text>
-              {dieta.refeicoes.map((r, i) => (
-                <View key={`${r.titulo}-${i}`} style={styles.refeicao} wrap={false}>
-                  <View style={styles.refeicaoTitulo}>
-                    <Text style={styles.refeicaoNumero}>{i + 1}</Text>
-                    <Text style={styles.refeicaoTituloTexto}>{r.titulo}</Text>
-                  </View>
-                  {r.itens.length > 0 && (
-                    <View style={styles.itemCabecalho}>
-                      <Text style={[styles.colAlimento, styles.itemCabecalhoTexto]}>Alimento</Text>
-                      <Text style={[styles.colMedida, styles.itemCabecalhoTexto]}>Medida caseira</Text>
-                      <Text style={[styles.itemCabecalhoTexto, styles.colGramasCabecalho]}>Qtd</Text>
+            <>
+              <Text style={styles.secaoRotulo}>Refeições do dia</Text>
+              {dieta.refeicoes.map((r, i) => {
+                const { nome, detalhe } = separarTitulo(r.titulo);
+                const estilo = i === 0 ? [styles.refeicao, styles.refeicaoPrimeira] : [styles.refeicao];
+                return (
+                  <View key={`${r.titulo}-${i}`} style={estilo} wrap={false}>
+                    <View style={styles.refeicaoInfo}>
+                      <Text style={styles.refeicaoNome}>{nome}</Text>
+                      {detalhe && <Text style={styles.refeicaoDetalhe}>{detalhe}</Text>}
                     </View>
-                  )}
-                  {r.itens.map((item, j) => (
-                    <LinhaItemCardapio key={j} item={item} index={j} />
-                  ))}
-                  {r.subtotal && (
-                    <Text style={styles.subtotal}>Total da refeição: {r.subtotal}</Text>
-                  )}
-                </View>
-              ))}
-            </View>
+                    <View style={styles.refeicaoTabela}>
+                      {r.itens.length > 0 && (
+                        <View style={styles.itemCabecalho}>
+                          <Text style={[styles.colAlimento, styles.itemCabecalhoTexto]}>Alimento</Text>
+                          <Text style={[styles.colMedida, styles.itemCabecalhoTexto]}>Medida caseira</Text>
+                          <Text style={[styles.colGramas, styles.itemCabecalhoTexto]}>Gramas</Text>
+                        </View>
+                      )}
+                      {r.itens.map((item, j) => (
+                        <LinhaItemCardapio key={j} item={item} />
+                      ))}
+                      {r.subtotal && <Text style={styles.subtotal}>Total da refeição: {r.subtotal}</Text>}
+                    </View>
+                  </View>
+                );
+              })}
+            </>
           ) : (
-            <View break>
-              <Text style={[styles.tituloSecao, { marginTop: 0 }]}>Plano alimentar</Text>
+            <>
+              <Text style={styles.secaoRotulo}>Plano alimentar</Text>
               <Text style={styles.paragrafo}>{dieta.bruto}</Text>
-            </View>
+            </>
           )}
 
           {dieta.substituicoes.length > 0 && (
             <>
-              <Text style={styles.tituloSecao}>Substituições equivalentes</Text>
+              <Text style={styles.secaoRotulo}>Substituições equivalentes</Text>
               {dieta.substituicoes.map((s, i) => (
-                <Text key={i} style={[styles.paragrafo, { marginBottom: 3 }]}>
+                <Text key={i} style={styles.listaSub}>
                   {s}
                 </Text>
               ))}
             </>
           )}
 
-          {dieta.orientacoes && (
-            <>
-              <Text style={styles.tituloSecao}>Orientações</Text>
-              <Text style={styles.paragrafo}>{dieta.orientacoes}</Text>
-            </>
+          {observacoes && (
+            <View style={styles.caixaObs}>
+              <Text style={styles.caixaObsTitulo}>Observações do nutricionista</Text>
+              <Text style={styles.caixaObsTexto}>{observacoes}</Text>
+            </View>
           )}
 
           {dieta.observacoesClinicas && (
             <View style={styles.aviso}>
-              <Text style={[styles.paragrafo, { fontWeight: 700, marginBottom: 3 }]}>
-                Observações clínicas
-              </Text>
+              <Text style={styles.avisoTitulo}>Observações clínicas</Text>
               <Text style={styles.paragrafo}>{dieta.observacoesClinicas}</Text>
             </View>
           )}
 
-          {dieta.acompanhamento && (
-            <>
-              <Text style={styles.tituloSecao}>Acompanhamento</Text>
-              <Text style={styles.paragrafo}>{dieta.acompanhamento}</Text>
-            </>
-          )}
-
-          <Text style={styles.rodape}>
+          <Text style={styles.disclaimer}>
             {dieta.disclaimer ??
               "Este plano tem caráter de informação e orientação nutricional, elaborado com base nas informações fornecidas."}
-            {"\n"}Plano revisado e liberado pelo nutricionista Eudes Pereira — CRN 52959 · gerado
-            em {dataFmt}
+            {"\n"}Plano revisado e liberado pelo nutricionista Eudes Pereira — CRN 52959 · gerado em {dataFmt}
           </Text>
+        </View>
+
+        <View style={styles.rodape} fixed>
+          <Text style={styles.rodapeTexto}>Nutre.AI · Nutricionista Eudes Pereira — CRN 52959</Text>
+          <Text style={styles.rodapeTexto}>Documento gerado para acompanhamento nutricional</Text>
         </View>
       </Page>
     </Document>

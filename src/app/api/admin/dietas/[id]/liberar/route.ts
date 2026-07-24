@@ -4,6 +4,7 @@ import { sessaoAdminValida } from "@/lib/auth";
 import { auditar } from "@/lib/audit";
 import { encontrarTermosProibidos } from "@/lib/validador";
 import { gerarDietaPdf } from "@/lib/pdf";
+import { codificarPdf } from "@/lib/pdf-cache";
 
 export const runtime = "nodejs";
 
@@ -58,7 +59,7 @@ export async function POST(
       notasDoNutricionista: body.notas?.trim() || null,
       status: "liberado",
       liberadoEm,
-      pdfDados: pdfBuffer.toString("base64"),
+      pdfDados: codificarPdf(pdfBuffer),
     },
   });
 

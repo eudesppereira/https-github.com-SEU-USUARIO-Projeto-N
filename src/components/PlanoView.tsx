@@ -39,7 +39,7 @@ export function PlanoView({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-tech-navy-strong)]/60 p-0 sm:p-6"
+      className="fixed inset-0 z-50 flex touch-none items-center justify-center overscroll-contain bg-[var(--color-tech-navy-strong)]/60 p-0 sm:p-6"
       onClick={onClose}
     >
       {/* o CARD é o container de scroll: overflow-hidden recorta as bordas
@@ -70,8 +70,9 @@ export function PlanoView({
           </button>
         </div>
 
-        {/* único elemento que rola */}
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
+        {/* único elemento que rola — overscroll-contain + touch-pan-y impedem
+            que a roda/rolagem vaze pro chat atrás do overlay. */}
+        <div className="min-h-0 flex-1 touch-pan-y space-y-5 overflow-y-auto overscroll-contain px-5 py-5">
           {/* macros / perfil metabólico */}
           {d.perfil.length > 0 && (
             <section>
