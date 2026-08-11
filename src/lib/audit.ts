@@ -8,7 +8,9 @@ export type EventoAuditoria =
   | "devolucao"
   | "exclusao_solicitada"
   | "exclusao"
-  | "validacao_falhou";
+  | "validacao_falhou"
+  | "alerta_substituicao"
+  | "orientacao_nutricionista";
 
 export async function auditar(evento: EventoAuditoria, payload: Record<string, unknown>) {
   await prisma.auditoria.create({

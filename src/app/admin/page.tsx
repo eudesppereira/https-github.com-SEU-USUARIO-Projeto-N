@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { sessaoAdminValida } from "@/lib/auth";
 import { lerMemoria } from "@/lib/caso";
 import NavAdmin from "./nav";
+import AlertasSubstituicao, { type AlertaAdmin } from "./AlertasSubstituicao";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,29 @@ export default async function FilaAdmin() {
     take: 10,
     include: { caso: { include: { cliente: true } } },
   });
+
+  // Alertas de substituição (IA provisionou uma troca e pediu ciência do nutri).
+  const casos = await prisma.caso.findMany({ include: { cliente: true } });
+  const alertas: AlertaAdmin[] = [];
+  for (const c of casos) {
+    const memoria = lerMemoria(c.memoria);
+    for (const a of memoria.alertasSubstituicao ?? []) {
+      if (a.resolvido) continue;
+      alertas.push({
+        clienteId: c.cliente.id,
+        clienteNome: c.cliente.nome,
+        chatUrl: `/c/${c.cliente.token}`,
+        refeicao: a.refeicao,
+        alimentoOriginal: a.alimentoOriginal,
+        sugerido: a.sugerido,
+        motivo: a.motivo,
+        nivel: a.nivel,
+        confianca: a.confianca,
+        em: a.em,
+      });
+    }
+  }
+  alertas.sort((a, b) => b.em.localeCompare(a.em));
 
   function Card({ dieta }: { dieta: (typeof pendentes)[number] }) {
     const memoria = lerMemoria(dieta.caso.memoria);
@@ -84,6 +108,8 @@ export default async function FilaAdmin() {
     <div className="min-h-dvh bg-[var(--background)]">
       <NavAdmin />
       <main className="mx-auto max-w-3xl space-y-8 px-4 py-8">
+        <AlertasSubstituicao alertas={alertas} />
+
         <section>
           <h1 className="mb-3 text-lg font-bold text-[var(--color-ink)]">
             Aguardando revisão ({pendentes.length})

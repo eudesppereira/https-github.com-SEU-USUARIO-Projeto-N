@@ -1,0 +1,195 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NutreAI — Demo Substituição</title>
+<style>
+  :root{--bg:oklch(98.5% 0.004 155);--ink:oklch(21% 0.015 155);--ink-soft:oklch(40% 0.015 155);
+    --brand:oklch(28% 0.08 155);--brand-strong:oklch(19% 0.06 155);--brand-soft:oklch(93% 0.03 155);
+    --line:oklch(90% 0.008 155);--surface:#fff;--accent:oklch(46% 0.11 155);
+    --shadow:0 1px 2px rgba(16,24,20,.05),0 10px 28px -16px rgba(16,24,20,.22);}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Public Sans",ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;font-feature-settings:"tnum" 1;}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+  header.top{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--brand-strong),var(--brand));
+    color:#fff;padding:16px 20px;border-radius:16px;box-shadow:var(--shadow)}
+  .logo{height:40px;width:40px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;
+    align-items:center;justify-content:center;font-weight:800;font-size:20px}
+  .top h1{font-size:16px;margin:0;line-height:1.1}.top p{margin:2px 0 0;font-size:12px;color:rgba(255,255,255,.75)}
+  .lead{margin:18px 2px 18px;color:var(--ink-soft);font-size:15px;max-width:72ch}
+  .tabs{display:flex;gap:8px;margin:0 2px 18px}
+  .tab{border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);cursor:pointer;
+    padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600}
+  .tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .sub{margin:0 2px 16px;color:var(--accent);font-weight:600;font-size:13.5px}
+  .pane{display:none}.pane.on{display:block}
+  .grid{display:grid;grid-template-columns:1.35fr .9fr;gap:20px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .panel h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+    margin:0;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--brand-soft)}
+  .chat{padding:16px;display:flex;flex-direction:column;gap:10px;max-height:70vh;overflow-y:auto}
+  .row{display:flex}.row.end{justify-content:flex-end}.row.start{justify-content:flex-start}
+  .bubble{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;box-shadow:var(--shadow)}
+  .bubble.bot{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+  .bubble.user{background:var(--brand-soft);border-bottom-right-radius:6px}
+  .bubble strong{color:var(--brand-strong)}
+  .live{display:inline-block;font-size:10px;font-weight:700;color:#fff;background:var(--accent);
+    border-radius:999px;padding:2px 8px;margin-bottom:6px}
+  .plano{width:88%;background:var(--brand-soft);border:1px solid var(--brand-soft);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .plano-head{display:flex;gap:10px;align-items:center}.plano-ico{height:34px;width:34px;border-radius:10px;
+    background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .plano-t{font-weight:700;color:var(--brand-strong);font-size:14px}.plano-s{font-size:12px;color:var(--ink-soft)}
+  details{margin-top:10px}summary{cursor:pointer;background:var(--brand);color:#fff;border-radius:999px;
+    padding:8px 14px;font-size:13px;font-weight:600;display:inline-block;list-style:none}
+  summary::-webkit-details-marker{display:none}details pre{white-space:pre-wrap;font-family:inherit;
+    font-size:13px;line-height:1.55;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0 0}
+  .side{display:flex;flex-direction:column;gap:20px;position:sticky;top:18px}
+  .filtros pre{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+    line-height:1.5;padding:16px;margin:0;color:var(--ink);max-height:44vh;overflow:auto}
+  ul.checks{list-style:none;margin:0;padding:14px 18px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+  ul.checks li{display:flex;gap:8px;align-items:flex-start}ul.checks li span{font-weight:800}
+  ul.checks li.ok span{color:var(--accent)}ul.checks li.no span{color:#c0392b}
+  .badge{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--accent);
+    border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:middle}
+  footer{margin-top:30px;color:var(--ink-soft);font-size:12px;text-align:center}
+</style></head><body><div class="wrap">
+  <header class="top"><div class="logo">N</div><div><h1>Nutre.AI · Motor de Substituição</h1>
+    <p>Modo: exemplo autorado (sem chave de API)</p></div></header>
+  <p class="lead">Para cada persona: a conversa do paciente, a dieta liberada e a <strong>lista de substituição</strong>
+    do módulo. O painel lateral traz os <strong>filtros de segurança reais</strong> do motor determinístico (mesma base
+    clínica da geração de dieta) e as checagens que rodaram.</p>
+  <div class="tabs"><button class="tab on" data-t="marta">Marta Souza</button><button class="tab" data-t="joao">João Ribeiro</button></div>
+  <div class="pane on" id="p-marta">
+        <p class="sub">55a · Hipertensão + DRC estágio 3 + Losartana · não come peixe</p>
+        <div class="grid">
+          <section class="panel"><h2>Conversa no chat</h2><div class="chat"><div class="row start"><div class="bubble bot">Olá, Marta! 👋 Seu plano foi <strong>liberado</strong> pelo nutricionista Eudes Pereira. Qualquer dúvida ou troca, é só me chamar. 💛</div></div>
+<div class="row start"><div class="plano">
+              <div class="plano-head"><span class="plano-ico">🍽️</span><div>
+                <div class="plano-t">Plano liberado · Ciclo 1</div>
+                <div class="plano-s">Revisado por Eudes Pereira · CRN 52959</div></div></div>
+              <details><summary>Abrir plano completo</summary><pre><strong>PLANO ALIMENTAR PERSONALIZADO</strong><br>Paciente: Marta Souza · Ciclo 1 · Nutricionista Eudes Pereira — CRN 52959<br><br><strong>PERFIL METABÓLICO</strong><br>TMB 1430 · GET 1930 · Meta 1500 kcal (emagrecimento — proteína/potássio ajustados pela DRC)<br>Proteínas 94g (1,2 g/kg) · Carboidratos 150g · Gorduras 50g · Água 2,5 L/dia<br><br><strong>CARDÁPIO</strong><br><br><strong>Café da manhã — 7h30</strong><br>- Pão francês integral — 1 unidade (50g)<br>- Queijo minas frescal — 1 fatia (30g)<br>- Café com leite desnatado — 1 xícara (200ml)<br>- Banana prata — 1 unidade pequena (70g)<br><br><strong>Almoço — 12h30</strong><br>- Arroz branco cozido — 3 colheres (45g)<br>- Feijão carioca — 1 concha pequena (60g)<br>- Carne bovina magra (patinho) — 1 bife pequeno (80g)<br>- Salada de alface e pepino (80g) · Azeite 1/2 colher<br><br><strong>Lanche — 16h30</strong><br>- Maçã ou pera — 1 unidade (120g)<br>- Iogurte natural desnatado — 1 pote (170g)<br><br><strong>Jantar — 19h30</strong><br>- Arroz branco — 2 colheres (30g)<br>- Carne bovina magra moída — 1 porção pequena (100g)<br>- Legumes cozidos (cenoura e abobrinha) — 1 xícara (150g)<br><br>⚠ <strong>OBSERVAÇÕES</strong>: DRC estágio 3 + Losartana + K 5,0 → teto de potássio; proteína controlada 1,2 g/kg.</pre></details>
+            </div></div>
+<div class="row end"><div class="bubble user">Adorei! Mas enjoei da carne do almoço todo dia. Posso trocar por outra coisa?</div></div>
+<div class="row start"><div class="bubble bot">Claro, Marta! A carne do almoço é a sua <strong>proteína principal</strong> (~25g). Filtrei mantendo proteína de qualidade sem pesar no sódio nem no potássio. 👇<br><br>🔁 <strong>Substituições para: Carne bovina (patinho) — 80g · Almoço 12h30</strong><br>Papel na refeição: proteína principal (~25g P)<br>Filtros aplicados: sem peixe (você não curte) · baixo sódio · teto de potássio (DRC) · proteína controlada<br><br>1. <strong>Frango grelhado desfiado — 100g</strong> · Selo: <strong>A</strong><br>   Por quê: mesma proteína de alto valor biológico, sódio baixo, potássio moderado. Troca direta segura.<br><br>2. <strong>Ovos — 2 unidades</strong> · Selo: <strong>A</strong><br>   Por quê: proteína completa, baixo fósforo e potássio — ótimo para o rim. Tempere com ervas, não sal.<br><br>3. <strong>Sobrecoxa de frango sem pele — 90g</strong> · Selo: <strong>B</strong><br>   Por quê: casa a proteína e rende sabor; grelhada/cozida sem caldo pronto (sódio).<br><br>Rotacionando na semana você mantém variedade. Nenhuma mexe nas travas de segurança. 💚</div></div>
+<div class="row end"><div class="bubble user">E a banana do café? Ouvi dizer que banana faz mal pro rim.</div></div>
+<div class="row start"><div class="bubble bot">Ótima pergunta — e você está certa em ter atenção. 🙌 Pela sua condição renal (com a Losartana, o potássio precisa ficar controlado), <strong>banana em excesso</strong> não é a melhor escolha. Dá pra variar com frutas de <strong>menor potássio</strong>:<br><br>🔁 <strong>Substituições para: Banana prata — 70g · Café da manhã 7h30</strong><br>Papel na refeição: fruta (carbo + fibra)<br>Filtros aplicados: teto de potássio (DRC/Losartana) · econômico · in natura<br><br>1. <strong>Maçã — 1 unidade pequena (100g)</strong> · Selo: <strong>A</strong><br>   Por quê: baixo potássio, boa fibra e saciedade. Troca direta segura.<br><br>2. <strong>Morango — 1 xícara (100g)</strong> · Selo: <strong>A</strong><br>   Por quê: baixo potássio, rico em vitamina C, cabe no orçamento na estação.<br><br>3. <strong>Pera — 1 unidade pequena (110g)</strong> · Selo: <strong>B</strong><br>   Por quê: baixo potássio e boa aceitação; ajuste a porção para casar as fibras.<br><br>⚠️ <strong>Revisão do nutricionista</strong>: envolve potássio + Losartana, então registrei sua preferência para o Eudes confirmar no próximo ciclo. 💛</div></div></div></section>
+          <div class="side">
+            <section class="panel filtros"><h2>Filtros ativos <span class="badge">saída real do motor</span></h2><pre>## FILTROS DE SUBSTITUIÇÃO ATIVOS (injetado pelo sistema — aplique no módulo de substituição)
+
+Travas já casadas com a ficha do paciente. Não recalcule; aplique na Camada A/B do módulo de substituição.
+
+⚠️ Paciente COM condição clínica e/ou interação medicamentosa: toda troca de risco sai com **revisão do nutricionista**.
+
+### A2 · Vetos clínicos por comorbidade (evitar)
+- Excesso de proteina
+- Alimentos ricos em fosforo (aditivos, refrigerante cola, laticinios em excesso)
+- Alimentos ricos em potassio se hipercalemia
+- Sodio
+- Sal e temperos prontos
+- Embutidos
+- Enlatados
+- Ultraprocessados
+- Excesso de sodio/acucar
+- Alcool em excesso
+- Gatilhos de fogacho (individual)
+- Deficit extremo
+- Dietas 'da moda' insustentaveis
+
+### A2 · Tetos clínicos invioláveis
+- proteina ≤0.8 — Excesso acelera progressao renal e sobrecarga de ureia [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+- potassio ≤3000 (se hipercalemia, reduzir mais) — Risco de arritmia [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+- fosforo ≤1200 — Doenca ossea e calcificacao [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+- sodio ≤2300 — Acima disso agrava controle pressorico [Hipertensao Arterial Sistemica]
+- energia_kcal_kg ≥20 — Deficit extremo prejudica massa magra, metabolismo e saude (exceto protocolo supervisionado) [Emagrecimento / Definicao (objetivo)]
+
+### A2 · Interações fármaco-nutriente
+- Diureticos poupadores de potassio / IECA / BRA × potassio: Cuidado com excesso de potassio e sais 'light' (cloreto de potassio). (risco: Hipercalemia -&gt; arritmia.)
+
+### A5 · Aversões (elimina o candidato)
+- peixe
+
+### A5 · Preferências (aumenta a prioridade)
+- frutas
+- café com leite
+- banana
+- laranja
+- feijão
+- queijo
+- pão
+
+### A4 · Praticidade e acesso
+- Orçamento: médio</pre></section>
+            <section class="panel"><h2>Checagens automáticas</h2><ul class="checks"><li class="ok"><span>✓</span>motor marca trava clínica (DRC)</li>
+<li class="ok"><span>✓</span>filtro captura aversão (peixe)</li>
+<li class="ok"><span>✓</span>filtro traz teto de potássio (DRC)</li>
+<li class="ok"><span>✓</span>filtro traz teto de proteína (DRC)</li>
+<li class="ok"><span>✓</span>resposta respeita aversão (sem "peixe")</li>
+<li class="ok"><span>✓</span>resposta sinaliza revisão do nutricionista</li>
+<li class="ok"><span>✓</span>resposta cita a trava de segurança/potássio ou proteína</li></ul></section>
+          </div>
+        </div></div>
+<div class="pane" id="p-joao">
+        <p class="sub">38a · DRC estágio 4 (TFG 22) + objetivo hipertrofia · não come jiló/fígado</p>
+        <div class="grid">
+          <section class="panel"><h2>Conversa no chat</h2><div class="chat"><div class="row start"><div class="bubble bot">Fala, João! 💪 Seu plano foi <strong>liberado</strong> pelo nutricionista Eudes Pereira. Precisar trocar algo, me chama.</div></div>
+<div class="row start"><div class="plano">
+              <div class="plano-head"><span class="plano-ico">🍽️</span><div>
+                <div class="plano-t">Plano liberado · Ciclo 1</div>
+                <div class="plano-s">Revisado por Eudes Pereira · CRN 52959</div></div></div>
+              <details><summary>Abrir plano completo</summary><pre><strong>PLANO ALIMENTAR PERSONALIZADO</strong><br>Paciente: João Ribeiro · Ciclo 1 · Nutricionista Eudes Pereira — CRN 52959<br><br><strong>PERFIL METABÓLICO</strong><br>TMB 1810 · GET 2806 · Meta 3150 kcal (ganho controlado — proteína limitada pela função renal)<br>Proteínas 65g (limite renal ~0,8 g/kg) · Carboidratos 430g · Gorduras 95g · Água 2,9 L/dia<br><br><strong>CARDÁPIO</strong><br><br><strong>Café da manhã — 7h</strong><br>- Arroz branco cozido — 2 colheres (120g)<br>- Ovos cozidos — 2 unidades (100g)<br><br><strong>Lanche — 10h</strong><br>- Banana prata — 2 unidades (200g) · Mel — 1 colher (20g)<br><br><strong>Almoço — 12h30</strong><br>- Arroz branco — 4 colheres (240g)<br>- Feijão carioca — 1 concha (100g)<br>- Peito de frango grelhado — 1 filé pequeno (80g)<br>- Cenoura cozida (60g) · Azeite 1 colher<br><br><strong>Lanche — 16h</strong><br>- Batata-doce cozida — 2 unidades (260g) · Azeite 1 colher<br><br><strong>Jantar — 20h</strong><br>- Arroz branco — 4 colheres (240g)<br>- Peito de frango grelhado — 1 filé pequeno (80g)<br>- Batata-doce cozida — 1 unidade (130g) · Azeite 1 colher<br><br>⚠ <strong>OBSERVAÇÕES</strong>: DRC estágio 4 (TFG 22) → proteína travada em ~0,8 g/kg MESMO com objetivo de hipertrofia (motor de conflito: travar + flag). Energia alta para não catabolizar; whey suspenso pela sobrecarga renal.</pre></details>
+            </div></div>
+<div class="row end"><div class="bubble user">Quero botar mais whey e frango pra ganhar massa. Dá pra aumentar a proteína?</div></div>
+<div class="row start"><div class="bubble bot">Entendo o objetivo, João — e vou ser honesto com você porque é importante. 🙏 Seu exame mostra a função renal bem reduzida (TFG 22), e por isso a <strong>proteína está travada em ~0,8 g/kg</strong> (os 65g do plano). Isso é uma trava de <strong>segurança</strong>, não dá pra furar nem com o objetivo de hipertrofia — proteína e whey em excesso aceleram a sobrecarga renal.<br><br>O que dá pra fazer com segurança:<br>- <strong>Manter a energia alta</strong> (carbo de qualidade) pra você não perder massa — é por isso que a meta é 3150 kcal.<br>- <strong>Priorizar proteína de alto valor biológico</strong> nos 65g (ovo, frango em porção controlada) pra render mais.<br>- Treino resistido segue firme pra proteger a massa dentro do limite seguro.<br><br>⚠️ <strong>Revisão do nutricionista</strong>: aumento de proteína não é liberado por aqui; o Eudes acompanha ureia/creatinina e ajusta com você. O whey fica suspenso por enquanto. 💚</div></div>
+<div class="row end"><div class="bubble user">Beleza. E no lanche, posso trocar a batata-doce por outra coisa?</div></div>
+<div class="row start"><div class="bubble bot">Boa, essa dá pra trocar tranquilo! 🍠 A batata-doce do lanche é <strong>fonte de carboidrato</strong> (~70g C, energia da tarde). Como você tem cuidado renal, filtrei mantendo o carbo e o potássio sob controle:<br><br>🔁 <strong>Substituições para: Batata-doce — 260g · Lanche 16h</strong><br>Papel na refeição: carboidrato (energia)<br>Filtros aplicados: teto de potássio/fósforo (DRC) · sem jiló/fígado · econômico<br><br>1. <strong>Arroz branco cozido — 200g</strong> · Selo: <strong>A</strong><br>   Por quê: carbo equivalente, baixo potássio (melhor que a batata pro rim). Troca direta segura.<br><br>2. <strong>Mandioca cozida — 180g</strong> · Selo: <strong>B</strong><br>   Por quê: casa a energia; potássio moderado, então mantenha a porção controlada.<br><br>3. <strong>Macarrão cozido — 180g</strong> · Selo: <strong>B</strong><br>   Por quê: prático e barato; ajuste o molho sem caldo pronto (sódio/fósforo).<br><br>Todas mantêm as ~450 kcal do lanche. Boa pra variar sem repetir sempre a batata. 💪</div></div></div></section>
+          <div class="side">
+            <section class="panel filtros"><h2>Filtros ativos <span class="badge">saída real do motor</span></h2><pre>## FILTROS DE SUBSTITUIÇÃO ATIVOS (injetado pelo sistema — aplique no módulo de substituição)
+
+Travas já casadas com a ficha do paciente. Não recalcule; aplique na Camada A/B do módulo de substituição.
+
+⚠️ Paciente COM condição clínica e/ou interação medicamentosa: toda troca de risco sai com **revisão do nutricionista**.
+
+### A2 · Vetos clínicos por comorbidade (evitar)
+- Excesso de proteina
+- Alimentos ricos em fosforo (aditivos, refrigerante cola, laticinios em excesso)
+- Alimentos ricos em potassio se hipercalemia
+- Sodio
+- Superavit excessivo (ganho de gordura)
+- Baixa proteina
+
+### A2 · Tetos clínicos invioláveis
+- proteina ≤0.8 — Excesso acelera progressao renal e sobrecarga de ureia [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+- potassio ≤3000 (se hipercalemia, reduzir mais) — Risco de arritmia [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+- fosforo ≤1200 — Doenca ossea e calcificacao [Doenca Renal Cronica nao-dialitica (estagios 3-5)]
+
+### A5 · Aversões (elimina o candidato)
+- jiló
+- fígado
+
+### A5 · Preferências (aumenta a prioridade)
+- frango
+- arroz
+- feijão
+- ovos
+- batata-doce
+- banana
+
+### A4 · Praticidade e acesso
+- Orçamento: 2 a 3 salários</pre></section>
+            <section class="panel"><h2>Checagens automáticas</h2><ul class="checks"><li class="ok"><span>✓</span>motor marca trava clínica (DRC)</li>
+<li class="ok"><span>✓</span>filtro captura aversão (jiló)</li>
+<li class="ok"><span>✓</span>filtro traz teto de potássio (DRC)</li>
+<li class="ok"><span>✓</span>filtro traz teto de proteína (DRC)</li>
+<li class="ok"><span>✓</span>resposta respeita aversão (sem "jiló")</li>
+<li class="ok"><span>✓</span>resposta sinaliza revisão do nutricionista</li>
+<li class="ok"><span>✓</span>resposta cita a trava de segurança/potássio ou proteína</li></ul></section>
+          </div>
+        </div></div>
+  <footer>Gerado por scripts/demo-substituicao.ts · filtros = saída real do motor. Respostas: exemplo fiel do módulo (sem chave de API neste ambiente).</footer>
+  <script>
+    document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+      document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('on')});
+      t.classList.add('on');document.getElementById('p-'+t.dataset.t).classList.add('on');
+    });});
+  </script>
+</div></body></html>

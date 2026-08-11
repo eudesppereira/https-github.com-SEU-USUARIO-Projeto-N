@@ -7,7 +7,8 @@ export type TipoEvento =
   | "anamnese_completa"
   | "checkin"
   | "retorno"
-  | "solicitacao_exclusao";
+  | "solicitacao_exclusao"
+  | "alerta_substituicao";
 
 export interface EventoNutre {
   tipo: TipoEvento;
@@ -24,6 +25,7 @@ const TIPOS_VALIDOS: TipoEvento[] = [
   "checkin",
   "retorno",
   "solicitacao_exclusao",
+  "alerta_substituicao",
 ];
 
 export function extrairEventos(texto: string): {
