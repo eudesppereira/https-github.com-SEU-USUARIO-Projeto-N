@@ -15,6 +15,19 @@ export interface MemoriaCaso {
   ultimoPesoKg?: number;
   ultimasMedidas?: Record<string, number>;
   ultimoRegistroEm?: string; // ISO
+  alertasSubstituicao?: AlertaSubstituicao[]; // trocas provisionadas que pedem ciência do nutricionista
+}
+
+// Alerta emitido pela IA quando provisiona uma substituição sem plena certeza.
+export interface AlertaSubstituicao {
+  refeicao: string;
+  alimentoOriginal: string;
+  sugerido: string;
+  motivo: string;
+  nivel: string; // A | B | C
+  confianca: string; // alta | media | baixa
+  em: string; // ISO
+  resolvido: boolean;
 }
 
 export function lerMemoria(memoriaJson: string): MemoriaCaso {

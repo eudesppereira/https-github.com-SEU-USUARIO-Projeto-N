@@ -2,12 +2,23 @@ import fs from "fs";
 import path from "path";
 import type { Cliente, Caso, Dieta } from "@prisma/client";
 import { lerMemoria, diasDesde, DIAS_CICLO } from "./caso";
+import { montarBlocoFiltros } from "./substituicao";
 
 function lerPromptArquivo(nome: string): string {
   return fs.readFileSync(path.join(process.cwd(), "prompts", nome), "utf8");
 }
 
 let baseCache: string | null = null;
+let substituicaoCache: string | null = null;
+
+// Módulo de substituição de alimentos — anexado ao contexto SOMENTE quando há
+// plano vigente (a troca só faz sentido contra uma dieta já liberada).
+function moduloSubstituicao(): string {
+  if (!substituicaoCache) {
+    substituicaoCache = lerPromptArquivo("nutre-ai-substituicao.md");
+  }
+  return substituicaoCache;
+}
 
 // Base estática: prompt v2 adaptado + camada de restrições (seções 3, 4 e 6)
 export function promptBase(): string {
@@ -86,6 +97,19 @@ export function blocoEstado(ctx: ContextoChat): string {
       dietaLiberada.conteudo,
       "",
       `Ciclo mensal completo: ${cicloCompleto ? "SIM — se o cliente trouxer dados novos, conduza o RETORNO MENSAL (evento retorno)" : `NÃO — faltam ~${DIAS_CICLO - dias} dia(s); dados novos são CHECK-IN (evento checkin), nunca retorno`}`
+    );
+
+    // Com plano vigente, habilita o motor de substituição: o módulo de prompt +
+    // os filtros de segurança já casados com a ficha do paciente.
+    linhas.push(
+      "",
+      "---",
+      "",
+      moduloSubstituicao(),
+      "",
+      "---",
+      "",
+      montarBlocoFiltros(memoria.anamnese ?? {})
     );
   }
 

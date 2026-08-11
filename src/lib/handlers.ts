@@ -86,7 +86,43 @@ async function processarEvento(
     case "solicitacao_exclusao":
       await tratarSolicitacaoExclusao(cliente);
       break;
+
+    case "alerta_substituicao":
+      await tratarAlertaSubstituicao(evento.payload, cliente);
+      break;
   }
+}
+
+// Alerta de substituição: a IA provisionou uma troca da qual não tem plena
+// certeza (nível C, risco clínico, dado nutricional incerto). Registra para o
+// nutricionista ficar ciente e poder confirmar/orientar. NÃO altera a dieta.
+async function tratarAlertaSubstituicao(
+  payload: Record<string, unknown>,
+  cliente: Cliente
+): Promise<void> {
+  const caso = await prisma.caso.findFirst({
+    where: { clienteId: cliente.id },
+    orderBy: { criadoEm: "desc" },
+  });
+  const alerta = {
+    refeicao: String(payload.refeicao ?? ""),
+    alimentoOriginal: String(payload.alimentoOriginal ?? ""),
+    sugerido: String(payload.sugerido ?? ""),
+    motivo: String(payload.motivo ?? ""),
+    nivel: String(payload.nivel ?? ""),
+    confianca: String(payload.confianca ?? ""),
+    em: new Date().toISOString(),
+    resolvido: false,
+  };
+  if (caso) {
+    const memoria = lerMemoria(caso.memoria);
+    const lista = [...(memoria.alertasSubstituicao ?? []), alerta];
+    await prisma.caso.update({
+      where: { id: caso.id },
+      data: { memoria: JSON.stringify({ ...memoria, alertasSubstituicao: lista }) },
+    });
+  }
+  await auditar("alerta_substituicao", { clienteId: cliente.id, ...alerta });
 }
 
 // Consentimentos LGPD (art. 11 — dado sensível: específico, destacado, com registro)
