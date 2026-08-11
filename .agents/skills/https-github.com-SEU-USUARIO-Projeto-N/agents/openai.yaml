@@ -1,0 +1,6 @@
+interface:
+  display_name: "Https Github.com SEU USUARIO Projeto N"
+  short_description: "Repo-specific patterns and workflows for https-github.com-SEU-USUARIO-Projeto-N"
+  default_prompt: "Use the https-github.com-SEU-USUARIO-Projeto-N repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
